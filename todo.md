@@ -1,0 +1,23 @@
+# Database persistence upgrade
+
+- [x] Confirm the portfolio data model: profile, technology items, projects, and contact submissions.
+- [x] Upgrade the project to the full-stack database-enabled scaffold.
+- [x] Add the database schema and server routes for reading portfolio content and creating contact submissions.
+- [x] Connect the frontend to persisted portfolio data with resilient loading and fallback states.
+- [x] Validate the database-backed flows, run checks, and save a checkpoint.
+- [x] Restore the polished portfolio UI after the full-stack upgrade conflict and verify scroll-driven effects.
+- [x] Add a database-backed contact form and confirm the persisted submission path in the live preview.
+- [x] Refine the color theme toward a more premium, restrained art direction and rewrite generic copy.
+- [x] Add a custom cursor with hover intent states and accessible reduced-motion fallback.
+- [x] Add a cinematic custom loader with a short progress sequence and skip-safe behavior.
+- [x] Add richer project, button, image, and technology hover animations.
+- [x] Animate the hamburger into a cross and stagger the navigation overlay items.
+- [x] Verify the refined animation system on desktop and mobile, including reduced-motion behavior.
+- [x] Rewrite the remaining hero, CTA, about, and contact copy for a consistently premium voice.
+- [x] Make the custom cursor authoritative on fine-pointer devices and extend hover intent coverage across intended interactive elements.
+- [x] Run and document a real reduced-motion QA pass in the live preview.
+- [x] Add explicit portfolio loading and error UI states while keeping fallback content behavior.
+- [x] Complete the premium copy pass across hero, work, about, and contact.
+- [x] Add cursor intent labels to all intended interactive elements and verify coverage.
+- [x] Run an actual prefers-reduced-motion browser check and document the result.
+- [ ] Create the verified project checkpoint.
