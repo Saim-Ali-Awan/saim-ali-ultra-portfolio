@@ -26,4 +26,4 @@
 - [x] Rework the portfolio shell, type system, navigation, project presentation, and motion system.
 - [x] Preserve database-backed content and contact persistence while adapting the visual experience.
 - [x] Verify the redesign on desktop and mobile, then save a new checkpoint.
-- [ ] Save a new checkpoint for the Zajno-inspired redesign after the verified desktop and mobile preview.
+- [x] Save a new checkpoint for the Zajno-inspired redesign after the verified desktop and mobile preview.
