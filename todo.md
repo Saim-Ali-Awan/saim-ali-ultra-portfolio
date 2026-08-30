@@ -52,4 +52,4 @@
 - [x] Sync the verified project to the connected GitHub repository.
 - [x] Inspect and document the original saimalidev.vercel.app email-form behavior before changing integrations.
 - [x] Preserve the working form UX and delivery path without introducing new sender or recipient environment variables.
-- [ ] Push the current project state to the connected GitHub remote and capture the resulting commit evidence.
+- [x] Push the current project state to the connected GitHub remote and capture the resulting commit evidence.
