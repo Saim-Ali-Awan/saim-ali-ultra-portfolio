@@ -20,4 +20,4 @@
 - [x] Complete the premium copy pass across hero, work, about, and contact.
 - [x] Add cursor intent labels to all intended interactive elements and verify coverage.
 - [x] Run an actual prefers-reduced-motion browser check and document the result.
-- [ ] Create the verified project checkpoint.
+- [x] Create the verified project checkpoint.
