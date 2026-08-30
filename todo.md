@@ -42,3 +42,13 @@
 - [x] Add stronger appearing text animations with accessible reduced-motion fallbacks.
 - [x] Add a polished closing animation for the navbar without breaking focus restoration.
 - [x] Make the navbar full-width on desktop and half-width on mobile.
+- [x] Add three project rows with links to bitlinksdev.vercel.app, k72agency.vercel.app, and saimaliportfolio.vercel.app.
+- [x] Replace project imagery with the strongest reusable images from saimalidev.vercel.app.
+- [x] Remove the visible “No hello email” wording and provide clear form-first contact copy.
+- [x] Defer new Supabase/Resend environment configuration because the original working contact flow is being preserved and the secure setup card was not approved.
+- [x] Preserve the existing server-side contact persistence; defer Resend notification delivery because the original authenticated delivery endpoint is not publicly accessible.
+- [x] Add Supabase SQL/schema guidance for the user and document whether a new Supabase project is needed.
+- [x] Validate the existing contact mutation contract with Vitest and inspect the original form route and auth boundary live.
+- [ ] Sync the verified project to the connected GitHub repository.
+- [x] Inspect and document the original saimalidev.vercel.app email-form behavior before changing integrations.
+- [x] Preserve the working form UX and delivery path without introducing new sender or recipient environment variables.

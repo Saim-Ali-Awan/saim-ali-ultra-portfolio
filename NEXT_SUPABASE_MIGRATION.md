@@ -2,6 +2,10 @@
 
 The managed portfolio currently runs in the project’s full-stack React runtime so its preview, database gateway, and checkpoint workflow remain stable. The UI has been organized around the requested Next.js App Router shape and this document provides the direct migration map for a standalone Next.js deployment.
 
+## Which Supabase project to use
+
+You can reuse the Supabase project whose URL and keys you supplied; a new Supabase project is not required. Create a separate project only when you want isolated staging data, a separate auth tenant, or a clean production environment. Run `supabase-schema.sql` in the existing project’s SQL Editor, then keep the service-role key in the Next.js server environment only. The current managed site intentionally keeps its already-working contact mutation and does not replace it with an unverified Resend delivery path.
+
 ## Recommended App Router structure
 
 ```text
@@ -90,7 +94,7 @@ The existing Drizzle tables already express the same concepts. For Supabase, cre
 
 ## Server route replacement
 
-The current tRPC `portfolio.getAll` query maps to a server-side `getPortfolioData()` function in `lib/data.ts`. The current `contact.submit` mutation maps to `app/api/send-message/route.ts` or a server action. Keep the visitor email field because it is required for replies, but do not display an invented studio hello address. The visible contact page should continue to say that requests are received through the form.
+The current tRPC `portfolio.getAll` query maps to a server-side `getPortfolioData()` function in `lib/data.ts`. The current `contact.submit` mutation maps to `app/api/send-message/route.ts` or a server action. Keep the visitor email field because it is required for replies, but do not display an invented studio hello address. The visible contact page should continue to say that requests are received through the form. If the existing original-site delivery handler becomes available, preserve its contract; otherwise keep the current managed contact mutation rather than guessing at a private endpoint.
 
 ## Page behavior
 

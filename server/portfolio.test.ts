@@ -25,7 +25,11 @@ describe("portfolio persistence contract", () => {
     vi.clearAllMocks();
     dbMocks.getPortfolioProfile.mockResolvedValue({ id: 1, name: "Saim Ali" });
     dbMocks.getPortfolioTechnologies.mockResolvedValue([{ id: 1, name: "React", category: "Library", sortOrder: 1 }]);
-    dbMocks.getFeaturedProjects.mockResolvedValue([{ id: 1, title: "Kinetic / Commerce", tags: "Next.js, Framer", isFeatured: 1 }]);
+    dbMocks.getFeaturedProjects.mockResolvedValue([
+      { id: 1, title: "BITLINKS", tags: "Next.js, Tailwind, Framer", projectUrl: "https://bitlinksdev.vercel.app", imageUrl: "https://saimalidev.vercel.app/bitlinks.png", isFeatured: 1 },
+      { id: 2, title: "K72 PLATFORM", tags: "React, Motion, Three.js", projectUrl: "https://k72agency.vercel.app", imageUrl: "https://saimalidev.vercel.app/k72.png", isFeatured: 1 },
+      { id: 3, title: "CORE PORTFOLIO", tags: "Industrial UI, GSAP, Next.js", projectUrl: "https://saimaliportfolio.vercel.app", imageUrl: "https://saimalidev.vercel.app/portfolio.png", isFeatured: 1 },
+    ]);
     dbMocks.createContactSubmission.mockResolvedValue({ id: 42 });
   });
 
@@ -34,7 +38,23 @@ describe("portfolio persistence contract", () => {
 
     expect(result.profile?.name).toBe("Saim Ali");
     expect(result.technologies).toHaveLength(1);
-    expect(result.projects[0]?.tags).toEqual(["Next.js", "Framer"]);
+    expect(result.projects).toHaveLength(3);
+    expect(result.projects[0]?.tags).toEqual(["Next.js", "Tailwind", "Framer"]);
+  });
+
+  it("keeps the three source portfolio links and images in the public contract", async () => {
+    const result = await appRouter.createCaller(createContext()).portfolio.getAll();
+
+    expect(result.projects.map((project) => project.projectUrl)).toEqual([
+      "https://bitlinksdev.vercel.app",
+      "https://k72agency.vercel.app",
+      "https://saimaliportfolio.vercel.app",
+    ]);
+    expect(result.projects.map((project) => project.imageUrl)).toEqual([
+      "https://saimalidev.vercel.app/bitlinks.png",
+      "https://saimalidev.vercel.app/k72.png",
+      "https://saimalidev.vercel.app/portfolio.png",
+    ]);
   });
 
   it("validates and persists a contact submission", async () => {
