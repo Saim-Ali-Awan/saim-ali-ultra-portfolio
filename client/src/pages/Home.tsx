@@ -1,5 +1,5 @@
 import { FormEvent, useEffect, useMemo, useState } from "react";
-import { ArrowDownRight, ArrowUpRight, Check, MoveDown, Send } from "lucide-react";
+import { ArrowDownRight, ArrowUpRight, Check, Menu, MoveDown, Send, X } from "lucide-react";
 import { motion, useMotionValue, useScroll, useSpring, useTransform } from "framer-motion";
 import { toast } from "sonner";
 import { trpc } from "@/lib/trpc";
@@ -25,77 +25,55 @@ const fallbackProfile = {
   twitterUrl: "https://x.com",
 };
 
-const fallbackTechnologies = [
-  ["01", "Next.js", "Framework"],
-  ["02", "React", "Library"],
-  ["03", "Three.js", "3D engine"],
-  ["04", "Framer", "Interaction"],
-  ["05", "GSAP", "Motion"],
-  ["06", "Node.js", "Backend"],
-];
-
+const fallbackTechnologies = ["Next.js", "React", "Three.js", "Framer", "GSAP", "Node.js"];
 const fallbackProjects = [
   { id: 1, title: "Kinetic / Commerce", projectType: "Product system", summary: "A conversion-minded interface where motion makes a complex product feel obvious.", imageUrl: FALLBACK.kinetic, projectUrl: "#", tags: ["Next.js", "Framer", "Strategy"] },
   { id: 2, title: "Depth / Interface", projectType: "Interactive 3D", summary: "An immersive web layer that turns navigation into spatial storytelling.", imageUrl: FALLBACK.depth, projectUrl: "#", tags: ["Three.js", "GSAP", "Art direction"] },
 ];
 
-function SectionLabel({ number, children }: { number: string; children: string }) {
-  return <div className="section-label"><span className="section-label__number">{number}</span><span>{children}</span></div>;
+function Label({ children }: { children: string }) {
+  return <span className="studio-label">{children}</span>;
 }
 
 export default function Home() {
   const [menuOpen, setMenuOpen] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [cursorLabel, setCursorLabel] = useState("");
-  const cursorX = useSpring(useMotionValue(-100), { stiffness: 420, damping: 32, mass: 0.35 });
-  const cursorY = useSpring(useMotionValue(-100), { stiffness: 420, damping: 32, mass: 0.35 });
+  const [activeProject, setActiveProject] = useState(0);
   const [form, setForm] = useState({ name: "", email: "", message: "" });
   const portfolioQuery = trpc.portfolio.getAll.useQuery(undefined, { staleTime: 60_000 });
   const submitContact = trpc.contact.submit.useMutation();
   const profile = portfolioQuery.data?.profile ?? fallbackProfile;
   const projects = portfolioQuery.data?.projects?.length ? portfolioQuery.data.projects : fallbackProjects;
-  const technologies = portfolioQuery.data?.technologies?.length
-    ? portfolioQuery.data.technologies.map((item, index) => [String(index + 1).padStart(2, "0"), item.name, item.category] as const)
-    : fallbackTechnologies;
+  const technologies = portfolioQuery.data?.technologies?.length ? portfolioQuery.data.technologies.map((item) => item.name) : fallbackTechnologies;
   const contentIsPersisted = Boolean(portfolioQuery.data?.profile);
   const { scrollYProgress } = useScroll();
-  const progress = useSpring(scrollYProgress, { stiffness: 120, damping: 22, mass: 0.2 });
-  const orbRotate = useTransform(progress, [0, 1], [0, 260]);
-  const orbY = useTransform(progress, [0, 0.35, 1], [0, -30, 95]);
-  const heroTitleY = useTransform(progress, [0, 0.22], [0, -80]);
-  const heroTitleOpacity = useTransform(progress, [0, 0.2], [1, 0.1]);
-  const navLinks = useMemo(() => ["work", "system", "about", "contact"], []);
+  const progress = useSpring(scrollYProgress, { stiffness: 120, damping: 24, mass: 0.25 });
+  const cursorX = useSpring(useMotionValue(-100), { stiffness: 420, damping: 32, mass: 0.35 });
+  const cursorY = useSpring(useMotionValue(-100), { stiffness: 420, damping: 32, mass: 0.35 });
+  const heroScale = useTransform(progress, [0, 0.18], [1, 0.92]);
+  const heroY = useTransform(progress, [0, 0.2], [0, -90]);
+
+  const navLinks = useMemo(() => ["work", "studio", "playground", "contact"], []);
 
   useEffect(() => {
+    const timer = window.setTimeout(() => setIsLoading(false), 1050);
     const media = window.matchMedia("(prefers-reduced-motion: reduce)");
     const syncMotionPreference = () => { document.documentElement.dataset.reducedMotion = media.matches ? "true" : "false"; };
     syncMotionPreference();
     media.addEventListener("change", syncMotionPreference);
-    return () => media.removeEventListener("change", syncMotionPreference);
+    return () => { window.clearTimeout(timer); media.removeEventListener("change", syncMotionPreference); };
   }, []);
 
   useEffect(() => {
-    const timer = window.setTimeout(() => setIsLoading(false), 1150);
-    return () => window.clearTimeout(timer);
-  }, []);
-
-  useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 24);
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
-
-  useEffect(() => {
-    const moveCursor = (event: MouseEvent) => { cursorX.set(event.clientX); cursorY.set(event.clientY); };
-    const setIntent = (event: Event) => {
+    const onMove = (event: MouseEvent) => { cursorX.set(event.clientX); cursorY.set(event.clientY); };
+    const onIntent = (event: Event) => {
       const target = event.target as HTMLElement;
-      const interactive = target.closest("a, button, input, textarea");
-      setCursorLabel(interactive?.getAttribute("data-cursor") || "");
+      setCursorLabel(target.closest("a, button, input, textarea")?.getAttribute("data-cursor") || "");
     };
-    window.addEventListener("mousemove", moveCursor);
-    window.addEventListener("mouseover", setIntent);
-    return () => { window.removeEventListener("mousemove", moveCursor); window.removeEventListener("mouseover", setIntent); };
+    window.addEventListener("mousemove", onMove);
+    window.addEventListener("mouseover", onIntent);
+    return () => { window.removeEventListener("mousemove", onMove); window.removeEventListener("mouseover", onIntent); };
   }, [cursorX, cursorY]);
 
   const scrollTo = (id: string) => {
@@ -108,66 +86,61 @@ export default function Home() {
     try {
       await submitContact.mutateAsync(form);
       setForm({ name: "", email: "", message: "" });
-      toast.success("Message saved. I’ll be in touch soon.");
+      toast.success("Request received. I’ll be in touch soon.");
     } catch {
-      toast.error("Couldn’t save that message. Please try again.");
+      toast.error("The request could not be saved. Please try again.");
     }
   };
 
   return (
-    <main className="portfolio-shell">
-      <motion.div className={`site-loader ${isLoading ? "site-loader--visible" : ""}`} aria-hidden={!isLoading}>
-        <div className="loader-topline"><span>SAIMALI / SYSTEM 01</span><span>INITIALIZING</span></div>
-        <div className="loader-center"><span className="loader-glyph">S</span><strong>Designing<br />the feeling.</strong></div>
-        <div className="loader-bottomline"><span>INTERFACE / MOTION / 3D</span><span>00—100</span></div>
-        <motion.div className="loader-bar" initial={{ scaleX: 0 }} animate={{ scaleX: isLoading ? 0.86 : 1 }} transition={{ duration: 1.05, ease: [0.23, 1, 0.32, 1] }} />
+    <main className="zajno-shell">
+      <motion.div className={`zajno-loader ${isLoading ? "zajno-loader--visible" : ""}`} aria-hidden={!isLoading}>
+        <span>SAIMALI® / DIGITAL STUDIO</span><strong>00</strong><span>LOADING EXPERIENCE</span>
+        <motion.div className="zajno-loader__bar" initial={{ scaleX: 0 }} animate={{ scaleX: isLoading ? 0.88 : 1 }} transition={{ duration: 0.95, ease: [0.77, 0, 0.175, 1] }} />
       </motion.div>
-      <motion.div className="custom-cursor" style={{ x: cursorX, y: cursorY }} aria-hidden="true"><span>{cursorLabel}</span></motion.div>
-      <div className="noise" aria-hidden="true" />
-      <motion.div className="scroll-progress" style={{ scaleX: progress }} aria-hidden="true" />
-      <header className={`site-header ${scrolled ? "site-header--scrolled" : ""}`}>
-        <button className="brand" data-cursor="TOP" onClick={() => scrollTo("top")} aria-label="Back to top"><img src={FALLBACK.mark} alt="" className="brand__mark" /><span className="brand__wordmark">SAIM<span>ALI</span></span></button>
-        <div className="header-meta">DIGITAL PRODUCT ENGINEER <span>/</span> 2026</div>
-        <button className={`menu-trigger ${menuOpen ? "menu-trigger--open" : ""}`} data-cursor="OPEN" onClick={() => setMenuOpen((open) => !open)} aria-label={menuOpen ? "Close navigation" : "Open navigation"} aria-expanded={menuOpen}><span className="menu-icon"><i /><i /></span><span>{menuOpen ? "Close" : "Index"}</span></button>
+      <motion.div className="zajno-cursor" style={{ x: cursorX, y: cursorY }} aria-hidden="true"><span>{cursorLabel}</span></motion.div>
+      <motion.div className="zajno-progress" style={{ scaleX: progress }} aria-hidden="true" />
+
+      <header className="zajno-header">
+        <button className="zajno-brand" data-cursor="TOP" onClick={() => scrollTo("top")} aria-label="Back to top"><img src={FALLBACK.mark} alt="" /><span>saima<span>li</span><sup>®</sup></span></button>
+        <div className="zajno-header__meta">digital studio <span>/</span> 2015—26</div>
+        <button className={`zajno-menu ${menuOpen ? "zajno-menu--open" : ""}`} data-cursor="MENU" onClick={() => setMenuOpen((open) => !open)} aria-expanded={menuOpen} aria-label={menuOpen ? "Close navigation" : "Open navigation"}>{menuOpen ? <X size={18} /> : <Menu size={18} />}<span>{menuOpen ? "close" : "index"}</span></button>
       </header>
-      <nav className={`overlay-nav ${menuOpen ? "overlay-nav--open" : ""}`} aria-hidden={!menuOpen}>
-        <div className="overlay-nav__eyebrow">Field notes / navigation</div>
-        {navLinks.map((link, index) => <button key={link} data-cursor="GO" onClick={() => scrollTo(link === "work" ? "work" : link === "system" ? "system" : link)}><span>0{index + 1}</span>{link}</button>)}
-        <p>Good systems should feel obvious<br />before they feel impressive.</p>
+
+      <nav className={`zajno-menu-panel ${menuOpen ? "zajno-menu-panel--open" : ""}`} aria-hidden={!menuOpen}>
+        {navLinks.map((link, index) => <button key={link} data-cursor="GO" onClick={() => scrollTo(link)}><small>0{index + 1}</small>{link}<ArrowUpRight size={19} /></button>)}
+        <p>Independent digital practice<br />for people who care how software feels.</p>
       </nav>
-      <aside className="index-rail" aria-hidden="true"><span>SCROLL / FIELD NOTES</span><span className="index-rail__line" /><span>00—05</span></aside>
 
-      <section id="top" className="hero-section">
-        <div className="hero-section__grid" />
-        {portfolioQuery.isLoading && <div className="data-banner" role="status">SYNCING CONTENT NODE / READING PORTFOLIO DATA</div>}
-        {portfolioQuery.isError && <div className="data-banner data-banner--warning" role="status">CONTENT NODE UNAVAILABLE / DISPLAYING LAST-KNOWN EDITORIAL STATE</div>}
-        <div className="hero-kicker"><span className="live-dot" /> {profile.role.toUpperCase()}</div>
-        <motion.div className="hero-copy" style={{ y: heroTitleY, opacity: heroTitleOpacity }}>
-          <p className="micro-label">{profile.name.toUpperCase()} / INDEPENDENT PRACTICE</p>
-          <h1>Interfaces<br /><em>with a pulse.</em></h1>
-          <p className="hero-description">{profile.bio}</p>
-          <div className="hero-actions"><button className="button button--orange" data-cursor="MOVE" onClick={() => scrollTo("work")}>Move through the work <ArrowDownRight size={17} /></button><button className="button button--quiet" data-cursor="OPEN CHANNEL" onClick={() => scrollTo("contact")}>Open the channel <ArrowUpRight size={17} /></button></div>
+      <section id="top" className="zajno-hero">
+        <div className="zajno-hero__top"><Label>Los Angeles, CA</Label><Label>Independent practice</Label></div>
+        <motion.div className="zajno-hero__content" style={{ scale: heroScale, y: heroY }}>
+          <div className="zajno-hero__copy"><Label>Full-cycle product development</Label><h1>Designing<br /><em>the feeling.</em></h1><p>{profile.bio}</p><button className="zajno-arrow-link" data-cursor="WORK" onClick={() => scrollTo("work")}>Enter the work <ArrowDownRight size={17} /></button></div>
+          <div className="zajno-hero__visual"><img src={FALLBACK.hero} alt="Abstract chrome orbital sculpture in a dark studio" /><span>OBJECT / 01</span></div>
         </motion.div>
-        <motion.div className="hero-orbit" style={{ y: orbY, rotate: orbRotate }}><img src={FALLBACK.hero} alt="Abstract chrome orbital sculpture in a dark studio" /><span className="hero-orbit__annotation">OBJECT_01<br />DEPTH / MOTION</span></motion.div>
-        <div className="hero-bottom-note"><MoveDown size={15} /> Scroll to enter the system</div>
+        <div className="zajno-hero__bottom"><span>SCROLL TO EXPLORE</span><MoveDown size={16} /><span>SAIM ALI / {profile.role.toUpperCase()}</span></div>
       </section>
 
-      <section id="system" className="manifesto-section section-pad">
-        <div className="section-topline"><SectionLabel number="01">Philosophy</SectionLabel><span>LOGICAL FLUIDITY / 01</span></div>
-        <div className="manifesto-layout"><h2>Good interfaces<br /><span>make complexity</span><br /><em>feel lighter.</em></h2><div className="manifesto-body"><p className="lead">I build with a bias toward clarity: clean modular architecture, responsive motion, and details that reward a second look.</p><p>Not decoration for decoration’s sake. Every transition has a job. Every layer earns its depth. I make the difficult part legible, then give it a pulse.</p><div className="manifesto-stamp"><span>BUILT FOR</span><strong>SPEED<br />&amp; PERFECTION</strong><span>60 FPS / ALWAYS IN MOTION</span></div></div></div>
+      <section id="work" className="zajno-section zajno-work">
+        <div className="zajno-section__head"><Label>Selected work</Label><span>01—0{projects.length}</span></div>
+        <div className="zajno-work__intro"><h2>Work that<br /><em>moves.</em></h2><p>From first principle to final polish, I build digital products that feel as good as they function.</p></div>
+        <div className="zajno-work-list">{projects.map((project, index) => <a className={`zajno-work-row ${activeProject === index ? "zajno-work-row--active" : ""}`} data-cursor="VIEW" href={project.projectUrl || "#"} key={project.id ?? project.title} onMouseEnter={() => setActiveProject(index)} onFocus={() => setActiveProject(index)}><span className="zajno-work-row__number">0{index + 1}</span><span className="zajno-work-row__title">{project.title}</span><span className="zajno-work-row__type">{project.projectType}</span><ArrowUpRight size={20} /></a>)}</div>
+        <div className="zajno-work-preview"><img src={projects[activeProject]?.imageUrl || FALLBACK.kinetic} alt="" /><span>Hover a project / See the thinking in motion</span></div>
       </section>
 
-      <section id="work" className="work-section section-pad">
-        <div className="section-topline"><SectionLabel number="02">Selected work</SectionLabel><span>CASE STUDIES / 2024—26</span></div>
-        <div className="work-intro"><h2>See the thinking<br /><em>in motion.</em></h2><p>Two ways of thinking about the web: as a product surface, and as a place you can move through.</p></div>
-        <div className="project-list">{projects.map((project, index) => <article className="project-card" key={project.id ?? project.title}><div className="project-card__media"><img src={project.imageUrl || (index === 0 ? FALLBACK.kinetic : FALLBACK.depth)} alt="" /><span className="project-card__number">{String(index + 1).padStart(2, "0")}</span><span className="project-card__view">View case study <ArrowUpRight size={17} /></span></div><div className="project-card__info"><div><span className="micro-label">{project.projectType}</span><h3>{project.title}</h3></div><p>{project.summary}</p><div className="project-tags">{project.tags.map((tag: string) => <span key={tag}>{tag}</span>)}</div></div></article>)}</div>
+      <section id="studio" className="zajno-section zajno-studio">
+        <div className="zajno-section__head"><Label>Studio / working style</Label><span>02</span></div>
+        <div className="zajno-studio__grid"><div><h2>A practice<br />between <em>systems</em><br />and sensation.</h2></div><div className="zajno-studio__copy"><p className="zajno-lead">{profile.bio}</p><p>Every interaction should make the next decision easier. I work across product strategy, interface design, motion, and 3D to remove the friction between an idea and the way it feels in someone’s hands.</p><button className="zajno-arrow-link" data-cursor="CONTACT" onClick={() => scrollTo("contact")}>Let’s make something clear <ArrowUpRight size={17} /></button></div></div>
+        <div className="zajno-stats"><div><strong>01</strong><span>Clear thinking</span></div><div><strong>60</strong><span>Frames / second</span></div><div><strong>∞</strong><span>Details considered</span></div></div>
       </section>
 
-      <section id="about" className="portrait-section section-pad"><div className="portrait-frame"><img src={profile.portraitUrl || FALLBACK.portrait} alt={`Portrait of ${profile.name}`} /><span>[ PROFILE_PHOTO.RAW ]</span></div><div className="portrait-copy"><SectionLabel number="03">About / working style</SectionLabel><h2>Precision is<br /><em>a point of view.</em></h2><p>{profile.bio}</p><button className="text-link" data-cursor="READ" onClick={() => scrollTo("contact")}>See the thinking in motion <ArrowUpRight size={17} /></button></div></section>
+      <section id="playground" className="zajno-playground"><div className="zajno-section__head"><Label>Capabilities</Label><span>03</span></div><h2>We dare to<br /><em>make it felt.</em></h2><div className="zajno-services">{["Product design", "Web development", "Motion systems", "3D direction", "Creative technology"].map((service, index) => <div key={service}><small>0{index + 1}</small><span>{service}</span><ArrowUpRight size={18} /></div>)}</div><div className="zajno-tech-strip">{technologies.map((technology) => <span key={technology}>{technology}</span>)}</div></section>
 
-      <section className="stack-section section-pad"><div className="section-topline"><SectionLabel number="04">Core technologies</SectionLabel><span>VERSION 2026.4.0</span></div><div className="stack-grid">{technologies.map(([number, name, role]) => <div className="stack-item" key={name}><span className="stack-item__number">{number}</span><div><h3>{name}</h3><p>{role}</p></div><ArrowUpRight size={17} /></div>)}</div></section>
-
-      <section id="contact" className="contact-section section-pad"><div className="contact-section__top"><SectionLabel number="05">Contact</SectionLabel><span>{profile.availability.toUpperCase()}</span></div><div className="contact-layout"><div><h2>Bring the<br /><em>difficult part.</em></h2><p>Send the difficult part. We’ll shape the solution until it feels like it could not have been built any other way.</p><a className="contact-email" data-cursor="MAIL" href={`mailto:${profile.email}`}>{profile.email} <ArrowUpRight size={25} /></a></div><form className="contact-form" onSubmit={submitForm}><div className="form-status"><span className={contentIsPersisted ? "status-light status-light--live" : "status-light"} />{contentIsPersisted ? "CONTENT NODE / LIVE" : "LOCAL FALLBACK / RECONNECTING"}</div><label><span>Your name</span><input data-cursor="WRITE" required minLength={2} value={form.name} onChange={(event) => setForm({ ...form, name: event.target.value })} placeholder="Saim's next collaborator" /></label><label><span>Email address</span><input data-cursor="WRITE" required type="email" value={form.email} onChange={(event) => setForm({ ...form, email: event.target.value })} placeholder="you@company.com" /></label><label><span>What are we making?</span><textarea data-cursor="WRITE" required minLength={10} value={form.message} onChange={(event) => setForm({ ...form, message: event.target.value })} placeholder="The difficult part, in a sentence or two..." rows={4} /></label><button className="button button--orange form-submit" data-cursor="SEND" type="submit" disabled={submitContact.isPending}>{submitContact.isPending ? "Saving..." : <>Send the difficult part <Send size={16} /></>}</button>{submitContact.isSuccess && <p className="form-success"><Check size={15} /> Saved to the contact archive.</p>}</form></div><div className="contact-footer"><span>© 2026 {profile.name.toUpperCase()}</span><div><a data-cursor="VISIT" href={profile.githubUrl || "#"} target="_blank" rel="noreferrer">GitHub</a><a data-cursor="VISIT" href={profile.linkedinUrl || "#"} target="_blank" rel="noreferrer">LinkedIn</a><a data-cursor="VISIT" href={profile.twitterUrl || "#"} target="_blank" rel="noreferrer">X / Twitter</a></div><span>MADE WITH INTENT</span></div></section>
+      <section id="contact" className="zajno-contact">
+        <div className="zajno-section__head"><Label>Let’s collaborate</Label><span>04</span></div>
+        <div className="zajno-contact__grid"><div><h2>Have an<br /><em>idea?</em></h2><p>Bring the difficult part. We’ll find the shape it was always meant to have.</p><a className="zajno-email" data-cursor="MAIL" href={`mailto:${profile.email}`}>{profile.email} <ArrowUpRight size={21} /></a></div><form className="zajno-form" onSubmit={submitForm}><div className="zajno-form__status"><span className={contentIsPersisted ? "zajno-live" : ""} />{contentIsPersisted ? "CONTENT NODE / LIVE" : "LOCAL FALLBACK / RECONNECTING"}</div><label><span>01 / Your name</span><input data-cursor="WRITE" required minLength={2} value={form.name} onChange={(event) => setForm({ ...form, name: event.target.value })} placeholder="Enter name" /></label><label><span>02 / Your email</span><input data-cursor="WRITE" required type="email" value={form.email} onChange={(event) => setForm({ ...form, email: event.target.value })} placeholder="Enter email" /></label><label><span>03 / Project details</span><textarea data-cursor="WRITE" required minLength={10} value={form.message} onChange={(event) => setForm({ ...form, message: event.target.value })} placeholder="Your project, goals, success criteria" rows={4} /></label><button className="zajno-submit" data-cursor="SEND" type="submit" disabled={submitContact.isPending}>{submitContact.isPending ? "Sending..." : <>Send request <Send size={16} /></>}</button>{submitContact.isSuccess && <p className="zajno-success"><Check size={15} /> Saved to the contact archive.</p>}</form></div>
+        <footer className="zajno-footer"><span>© 2026 {profile.name.toUpperCase()}</span><div><a data-cursor="VISIT" href={profile.githubUrl || "#"} target="_blank" rel="noreferrer">GitHub</a><a data-cursor="VISIT" href={profile.linkedinUrl || "#"} target="_blank" rel="noreferrer">LinkedIn</a><a data-cursor="VISIT" href={profile.twitterUrl || "#"} target="_blank" rel="noreferrer">Twitter</a></div><span>Made with intent</span></footer>
+      </section>
     </main>
   );
 }

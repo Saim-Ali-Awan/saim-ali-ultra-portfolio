@@ -21,3 +21,9 @@
 - [x] Add cursor intent labels to all intended interactive elements and verify coverage.
 - [x] Run an actual prefers-reduced-motion browser check and document the result.
 - [x] Create the verified project checkpoint.
+- [x] Inspect zajno.com for typography, layout, navigation, hover, transition, and scroll interaction patterns.
+- [x] Map a legally safe original adaptation of the observed design language onto Saima’s portfolio content.
+- [x] Rework the portfolio shell, type system, navigation, project presentation, and motion system.
+- [x] Preserve database-backed content and contact persistence while adapting the visual experience.
+- [x] Verify the redesign on desktop and mobile, then save a new checkpoint.
+- [ ] Save a new checkpoint for the Zajno-inspired redesign after the verified desktop and mobile preview.
