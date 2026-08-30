@@ -32,3 +32,7 @@ The browser menu check confirms the control changes to `close`, exposes `Go to w
 The direct `/portfolio` route renders the source project titles, project media, route header, and back-to-index link. The home browser check shows the source portrait, the continuously moving technology strip content, the form-first contact copy, and the updated content status.
 
 After opening the index menu, the trigger switches to `close`, the route controls expose explicit Go to labels, and the panel visually receives keyboard focus styling. The code now focuses the first menu button on open, traps Tab and Shift+Tab within the menu buttons, restores focus to the trigger on close, adds `aria-controls`, removes hidden controls from tab order, marks the background page content `aria-hidden`, and locks background scroll.
+
+## Navbar motion update QA
+
+The home preview now uses in-view heading reveals for the work, studio, capabilities, and contact headings in addition to the hero text entrance. The desktop index panel spans the full viewport width with its acid surface and staggered destination rows; the mobile rule constrains it to 50vw while preserving readable controls. The menu remains accessible with Escape close, focus entry, Tab trapping, focus restoration, and background scroll suppression. The native browser cursor remains active.

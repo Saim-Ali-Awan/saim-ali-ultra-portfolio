@@ -39,3 +39,6 @@
 - [x] Save a new checkpoint for the latest contrast, accessibility, multi-page, portrait, marquee, and migration redesign.
 - [x] Save a fresh checkpoint after the latest redesign changes and successful verification so the current state can be restored and delivered.
 - [x] Remove the custom cursor and restore the native browser cursor across desktop and mobile.
+- [x] Add stronger appearing text animations with accessible reduced-motion fallbacks.
+- [x] Add a polished closing animation for the navbar without breaking focus restoration.
+- [x] Make the navbar full-width on desktop and half-width on mobile.

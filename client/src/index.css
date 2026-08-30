@@ -329,3 +329,9 @@ html[data-reduced-motion="true"] .zajno-loader{opacity:0!important;visibility:hi
 /* Native pointer preference: the custom cursor is intentionally disabled. */
 .zajno-cursor{display:none!important}
 @media (hover:hover) and (pointer:fine){.zajno-shell,.zajno-shell *{cursor:auto!important}}
+
+/* Responsive index panel and final motion details */
+.zajno-menu-panel{width:100vw;visibility:visible;pointer-events:none}.zajno-menu-panel--open{pointer-events:auto}.zajno-menu-panel[aria-hidden="true"]{visibility:visible}.zajno-menu-panel[aria-hidden="false"]{visibility:visible}.route-hero>h1{animation:route-title-in .8s cubic-bezier(.23,1,.32,1) both}.zajno-section h2{will-change:transform,opacity}@keyframes route-title-in{from{opacity:0;transform:translateY(34px)}to{opacity:1;transform:translateY(0)}}
+@media (max-width:760px){.zajno-menu-panel{width:50vw;min-width:180px;padding-left:4vw;padding-right:4vw}.zajno-menu-panel button{font-size:clamp(22px,7vw,34px);gap:9px}.zajno-menu-panel button small{width:14px;font-size:8px}.zajno-menu-panel p{font-size:9px}.zajno-menu-panel p br{display:none}}
+@media (prefers-reduced-motion:reduce){.route-hero>h1{animation:none}.zajno-section h2{animation:none!important;transform:none!important;opacity:1!important}}
+html[data-reduced-motion="true"] .route-hero>h1{animation:none}html[data-reduced-motion="true"] .zajno-section h2{transform:none!important;opacity:1!important}
