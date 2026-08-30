@@ -38,3 +38,4 @@
 - [x] Move focus into the open menu, trap Tab and Shift+Tab, restore focus to the trigger on close, and keep background content out of the open-menu tab sequence.
 - [x] Save a new checkpoint for the latest contrast, accessibility, multi-page, portrait, marquee, and migration redesign.
 - [x] Save a fresh checkpoint after the latest redesign changes and successful verification so the current state can be restored and delivered.
+- [x] Remove the custom cursor and restore the native browser cursor across desktop and mobile.

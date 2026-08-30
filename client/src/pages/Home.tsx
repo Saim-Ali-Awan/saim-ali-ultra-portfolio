@@ -1,6 +1,6 @@
 import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
 import { ArrowDownRight, ArrowUpRight, Check, Menu, MoveDown, Send, X } from "lucide-react";
-import { motion, useMotionValue, useScroll, useSpring, useTransform } from "framer-motion";
+import { motion, useScroll, useSpring, useTransform } from "framer-motion";
 import { toast } from "sonner";
 import { trpc } from "@/lib/trpc";
 
@@ -40,7 +40,6 @@ export default function Home() {
   const menuTriggerRef = useRef<HTMLButtonElement>(null);
   const menuPanelRef = useRef<HTMLElement>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [cursorLabel, setCursorLabel] = useState("");
   const [activeProject, setActiveProject] = useState(0);
   const [form, setForm] = useState({ name: "", email: "", message: "" });
   const portfolioQuery = trpc.portfolio.getAll.useQuery(undefined, { staleTime: 60_000 });
@@ -51,8 +50,6 @@ export default function Home() {
   const contentIsPersisted = Boolean(portfolioQuery.data?.profile);
   const { scrollYProgress } = useScroll();
   const progress = useSpring(scrollYProgress, { stiffness: 120, damping: 24, mass: 0.25 });
-  const cursorX = useSpring(useMotionValue(-100), { stiffness: 420, damping: 32, mass: 0.35 });
-  const cursorY = useSpring(useMotionValue(-100), { stiffness: 420, damping: 32, mass: 0.35 });
   const heroScale = useTransform(progress, [0, 0.18], [1, 0.92]);
   const heroY = useTransform(progress, [0, 0.2], [0, -90]);
 
@@ -95,17 +92,6 @@ export default function Home() {
     return () => panel?.removeEventListener("keydown", trapFocus);
   }, [menuOpen]);
 
-  useEffect(() => {
-    const onMove = (event: MouseEvent) => { cursorX.set(event.clientX); cursorY.set(event.clientY); };
-    const onIntent = (event: Event) => {
-      const target = event.target as HTMLElement;
-      setCursorLabel(target.closest("a, button, input, textarea")?.getAttribute("data-cursor") || "");
-    };
-    window.addEventListener("mousemove", onMove);
-    window.addEventListener("mouseover", onIntent);
-    return () => { window.removeEventListener("mousemove", onMove); window.removeEventListener("mouseover", onIntent); };
-  }, [cursorX, cursorY]);
-
   const scrollTo = (id: string) => {
     setMenuOpen(false);
     document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
@@ -128,7 +114,6 @@ export default function Home() {
         <span>SAIMALI® / DIGITAL STUDIO</span><strong>00</strong><span>LOADING EXPERIENCE</span>
         <motion.div className="zajno-loader__bar" initial={{ scaleX: 0 }} animate={{ scaleX: isLoading ? 0.88 : 1 }} transition={{ duration: 0.95, ease: [0.77, 0, 0.175, 1] }} />
       </motion.div>
-      <motion.div className="zajno-cursor" style={{ x: cursorX, y: cursorY }} aria-hidden="true"><span>{cursorLabel}</span></motion.div>
       <motion.div className="zajno-progress" style={{ scaleX: progress }} aria-hidden="true" />
 
       <header className="zajno-header">

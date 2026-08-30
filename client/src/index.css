@@ -325,3 +325,7 @@ html[data-reduced-motion="true"] .zajno-loader{opacity:0!important;visibility:hi
 @media (prefers-reduced-motion:reduce){.zajno-marquee__track{animation:none}.matrix-text:hover{animation:none}.matrix-text::after{transition:none}.zajno-studio__portrait img,.zajno-studio__portrait{transition:none}.zajno-hero__copy h1 .matrix-text{opacity:1!important;transform:none!important}}
 
 ::selection{background:#d8ff3e;color:#111}.zajno-studio::selection,.zajno-playground::selection{background:#f3f2ee;color:#111}.zajno-menu:focus-visible,.zajno-brand:focus-visible,.zajno-menu-panel button:focus-visible,.route-header a:focus-visible{outline:2px solid var(--z-acid);outline-offset:7px}.zajno-menu-panel button:focus-visible{background:#111;color:#d8ff3e}.zajno-menu-panel[aria-hidden="true"]{visibility:hidden}.zajno-menu-panel[aria-hidden="false"]{visibility:visible}
+
+/* Native pointer preference: the custom cursor is intentionally disabled. */
+.zajno-cursor{display:none!important}
+@media (hover:hover) and (pointer:fine){.zajno-shell,.zajno-shell *{cursor:auto!important}}
