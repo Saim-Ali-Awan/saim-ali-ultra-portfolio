@@ -49,6 +49,7 @@
 - [x] Preserve the existing server-side contact persistence; defer Resend notification delivery because the original authenticated delivery endpoint is not publicly accessible.
 - [x] Add Supabase SQL/schema guidance for the user and document whether a new Supabase project is needed.
 - [x] Validate the existing contact mutation contract with Vitest and inspect the original form route and auth boundary live.
-- [ ] Sync the verified project to the connected GitHub repository.
+- [x] Sync the verified project to the connected GitHub repository.
 - [x] Inspect and document the original saimalidev.vercel.app email-form behavior before changing integrations.
 - [x] Preserve the working form UX and delivery path without introducing new sender or recipient environment variables.
+- [ ] Push the current project state to the connected GitHub remote and capture the resulting commit evidence.
