@@ -21,3 +21,14 @@ Reduced-motion QA: the live browser confirmed the custom cursor is mounted, the 
 Final verification: live preview rendered the persisted refined bio and the new premium action language (`OPEN THE CHANNEL`, `SEE THE THINKING IN MOTION`, `SEND THE DIFFICULT PART`). The browser inspection found the loader mounted, native cursor computed to `none`, and 17 cursor intent labels covering header, nav, CTAs, contact fields, email, submit, and social links. The current browser reports `prefers-reduced-motion: false`; the app includes a dedicated reduced-motion media path that hides the loader/cursor and suppresses nav stagger when that preference is active.
 
 Runtime reduced-motion QA: toggling the application’s motion-preference bridge to `true` in the live browser produced `loaderVisibility: hidden`, `cursorDisplay: none`, `navAnimation: none`, and `essentialContentPresent: true`. This verifies the accessibility fallback without stylesheet injection; the bridge listens to the real `prefers-reduced-motion` media query and updates when the browser preference changes.
+## Follow-up redesign QA
+
+The updated live preview now exposes the source portrait in the studio section, duplicates the technology list into a continuous marquee track, removes the unavailable hello email from the visible contact UI, and adds explicit `/about`, `/portfolio`, `/techstack`, and `/contact` route pages. Home content is readable on the paper/black/acid surfaces in the desktop and mobile captures.
+
+The browser menu check confirms the control changes to `close`, exposes `Go to work`, `Go to studio`, `Go to playground`, and `Go to contact` labels, and keeps the panel fully interactive. The implementation closes the menu on Escape, removes hidden navigation links from tab order, and locks background scroll while open. `pnpm check` and `pnpm test` pass.
+
+## Latest accessibility and route QA
+
+The direct `/portfolio` route renders the source project titles, project media, route header, and back-to-index link. The home browser check shows the source portrait, the continuously moving technology strip content, the form-first contact copy, and the updated content status.
+
+After opening the index menu, the trigger switches to `close`, the route controls expose explicit Go to labels, and the panel visually receives keyboard focus styling. The code now focuses the first menu button on open, traps Tab and Shift+Tab within the menu buttons, restores focus to the trigger on close, adds `aria-controls`, removes hidden controls from tab order, marks the background page content `aria-hidden`, and locks background scroll.

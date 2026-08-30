@@ -27,3 +27,14 @@
 - [x] Preserve database-backed content and contact persistence while adapting the visual experience.
 - [x] Verify the redesign on desktop and mobile, then save a new checkpoint.
 - [x] Save a new checkpoint for the Zajno-inspired redesign after the verified desktop and mobile preview.
+- [x] Fix all text contrast and readability issues across light, dark, acid, form, and navigation surfaces.
+- [x] Rebuild the hamburger/index menu as a fully accessible keyboard and focus-managed interaction.
+- [x] Add appearing text animations and Matrix-like heading hover distortion with reduced-motion fallbacks.
+- [x] Add Saima’s portrait from the source portfolio and a continuously moving technology marquee.
+- [x] Remove the unavailable hello-email presentation while preserving visitor email capture in the contact form.
+- [x] Add real portfolio, about, and contact routes and carry over source portfolio content.
+- [x] Add a Next.js/TypeScript migration blueprint and Supabase-compatible data access notes without breaking the current managed runtime.
+- [x] Verify the redesign on desktop/mobile and save a new checkpoint.
+- [x] Move focus into the open menu, trap Tab and Shift+Tab, restore focus to the trigger on close, and keep background content out of the open-menu tab sequence.
+- [x] Save a new checkpoint for the latest contrast, accessibility, multi-page, portrait, marquee, and migration redesign.
+- [ ] Save a fresh checkpoint after the latest redesign changes and successful verification so the current state can be restored and delivered.
