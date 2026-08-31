@@ -1,47 +1,83 @@
-import { Toaster } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import NotFound from "@/pages/NotFound";
+import { useState } from "react";
+import React from "react";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { httpBatchLink } from "@trpc/client";
+import { trpc } from "./lib/trpc";
+import { Toaster } from "./components/ui/sonner";
+import { TooltipProvider } from "./components/ui/tooltip";
+import NotFound from "./pages/NotFound";
 import { Route, Switch } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import Home from "./pages/Home";
-import { AboutPage, ContactPage, PortfolioPage, TechStackPage } from "./pages/StudioPages";
+
+// Import studio pages safely to prevent module crash if individual exports are missing
+import * as StudioPages from "./pages/StudioPages";
+
+const SafePage = ({ title }: { title: string }) => (
+  <div style={{ padding: "4rem", textAlign: "center", color: "#fff" }}>
+    <h1>{title}</h1>
+    <p>Page component loading...</p>
+  </div>
+);
+
+const AboutPage = StudioPages?.AboutPage || (() => <SafePage title="About" />);
+const PortfolioPage = StudioPages?.PortfolioPage || (() => <SafePage title="Portfolio" />);
+const TechStackPage = StudioPages?.TechStackPage || (() => <SafePage title="Tech Stack" />);
+const ContactPage = StudioPages?.ContactPage || (() => <SafePage title="Contact" />);
 
 function Router() {
-  // make sure to consider if you need authentication for certain routes
   return (
     <Switch>
-      <Route path={"/"} component={Home} />
-      <Route path={"/about"} component={AboutPage} />
-      <Route path={"/portfolio"} component={PortfolioPage} />
-      <Route path={"/techstack"} component={TechStackPage} />
-      <Route path={"/contact"} component={ContactPage} />
-      <Route path={"/404"} component={NotFound} />
-      {/* Final fallback route */}
+      <Route path="/" component={Home} />
+      <Route path="/about" component={AboutPage} />
+      <Route path="/portfolio" component={PortfolioPage} />
+      <Route path="/techstack" component={TechStackPage} />
+      <Route path="/contact" component={ContactPage} />
+      <Route path="/404" component={NotFound} />
       <Route component={NotFound} />
     </Switch>
   );
 }
 
-// NOTE: About Theme
-// - First choose a default theme according to your design style (dark or light bg), than change color palette in index.css
-//   to keep consistent foreground/background color across components
-// - If you want to make theme switchable, pass `switchable` ThemeProvider and use `useTheme` hook
+export default function App() {
+  const [queryClient] = useState(
+    () =>
+      new QueryClient({
+        defaultOptions: {
+          queries: {
+            retry: false,
+            refetchOnWindowFocus: false,
+          },
+        },
+      })
+  );
 
-function App() {
+  const [trpcClient] = useState(() =>
+    trpc.createClient({
+      links: [
+        httpBatchLink({
+          url:
+            typeof window !== "undefined"
+              ? `${window.location.origin}/api/trpc`
+              : "/api/trpc",
+        }),
+      ],
+    })
+  );
+
   return (
-    <ErrorBoundary>
-      <ThemeProvider
-        defaultTheme="light"
-        // switchable
-      >
-        <TooltipProvider>
-          <Toaster />
-          <Router />
-        </TooltipProvider>
-      </ThemeProvider>
-    </ErrorBoundary>
+    <trpc.Provider client={trpcClient} queryClient={queryClient}>
+      <QueryClientProvider client={queryClient}>
+        <ErrorBoundary>
+          <ThemeProvider defaultTheme="dark" switchable>
+            <TooltipProvider>
+              <Toaster />
+              <Router />
+            </TooltipProvider>
+          </ThemeProvider>
+        </ErrorBoundary>
+      </QueryClientProvider>
+    </trpc.Provider>
   );
 }
-
-export default App;

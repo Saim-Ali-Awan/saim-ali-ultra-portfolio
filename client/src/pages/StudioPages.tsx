@@ -2,7 +2,7 @@ import { FormEvent, useState } from "react";
 import { ArrowDownRight, ArrowUpRight, Check, Send } from "lucide-react";
 import { Link } from "wouter";
 import { toast } from "sonner";
-import { trpc } from "@/lib/trpc";
+import { trpc } from "../lib/trpc";
 
 const portrait = "https://saimalidev.vercel.app/saim.jpg";
 const fallback = {
