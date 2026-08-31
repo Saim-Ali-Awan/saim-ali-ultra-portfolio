@@ -22,10 +22,10 @@ import { useForm } from "@formspree/react";
 const FORMSPREE_ID = "xkjnoean";
 
 const FALLBACK = {
-  kinetic: "/manus-storage/saima-project-kinetic_c3802524.jpg",
-  depth: "/manus-storage/saima-project-depth_7dc27813.jpg",
-  mark: "/manus-storage/saima-mark_b8611117.png",
-  portrait: "https://saimalidev.vercel.app/saim.jpg",
+  kinetic: "/bitlinks.png", // Matches lowercase filename in public folder
+  depth: "/k72.png",
+  mark: "/portfolio.png",
+  portrait: "/saim.jpg",      // Fixed from /avatar.jpeg to match your saim.jpg file
 };
 
 const fallbackProfile = {
@@ -35,7 +35,7 @@ const fallbackProfile = {
   bio: "I make complex digital products feel inevitable — fast to understand, satisfying to use, and precise down to the last transition.",
   email: "hello@saimalidev.com",
   availability: "Available for select freelance work",
-  portraitUrl: FALLBACK.portrait,
+  portraitUrl: "/saim.jpg",    // Fixed filename reference
   githubUrl: "https://github.com",
   linkedinUrl: "https://linkedin.com",
   twitterUrl: "https://x.com",
@@ -44,9 +44,9 @@ const fallbackProfile = {
 const fallbackTechnologies = [
   "Next.js",
   "React",
-  "Three.js",
-  "Framer",
-  "GSAP",
+  "TypeScript",
+  "Tailwind CSS",
+  "Supabase",
   "Node.js",
 ];
 
@@ -57,7 +57,7 @@ const fallbackProjects = [
     projectType: "URL Shortening & Real-time Analytics Engine",
     summary:
       "A URL shortening and real-time analytics engine built for fast, measurable sharing.",
-    imageUrl: "https://saimalidev.vercel.app/bitlinks.png",
+    imageUrl: "/bitlinks.png",
     projectUrl: "https://bitlinksdev.vercel.app",
     tags: ["Next.js", "Tailwind", "Framer"],
   },
@@ -67,7 +67,7 @@ const fallbackProjects = [
     projectType: "Interactive Agency Platform",
     summary:
       "A motion-led agency platform translating bold art direction into a responsive digital system.",
-    imageUrl: "https://saimalidev.vercel.app/k72.png",
+    imageUrl: "/k72.png",
     projectUrl: "https://k72agency.vercel.app",
     tags: ["React", "Motion", "Three.js"],
   },
@@ -77,7 +77,7 @@ const fallbackProjects = [
     projectType: "Industrial Portfolio System",
     summary:
       "An earlier portfolio system exploring industrial UI, motion, and a modular archive language.",
-    imageUrl: "https://saimalidev.vercel.app/portfolio.png",
+    imageUrl: "/portfolio.png",
     projectUrl: "https://saimaliportfolio.vercel.app",
     tags: ["Industrial UI", "GSAP", "Next.js"],
   },
@@ -98,7 +98,6 @@ export default function Home() {
 
   const [formState, handleSubmit] = useForm(FORMSPREE_ID);
 
-  // Safe tRPC Query Execution with fallback protection
   const portfolioQuery = trpc?.portfolio?.getAll?.useQuery?.(undefined, {
     staleTime: 60_000,
     retry: false,
@@ -126,7 +125,6 @@ export default function Home() {
     []
   );
 
-  // Smooth 0 to 100 progress counter animation
   useEffect(() => {
     let frameId: number;
     const startTime = performance.now();
@@ -225,7 +223,6 @@ export default function Home() {
 
   return (
     <main className="zajno-shell">
-      {/* 0 to 100 loader with smooth background dissolve animation */}
       <AnimatePresence>
         {isLoading && (
           <motion.div
@@ -323,7 +320,7 @@ export default function Home() {
             className="zajno-hero__top"
             style={{ justifyContent: "center" }}
           >
-            <Label>Pakistan</Label>
+            <Label>Multan • PK</Label>
             <Label>Independent practice</Label>
           </div>
           <motion.div
@@ -450,7 +447,6 @@ export default function Home() {
                   {project.projectType}
                 </span>
 
-                {/* Floating Hover Card Directly Over the Line */}
                 <AnimatePresence>
                   {hoveredProject === index && (
                     <motion.div
