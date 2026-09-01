@@ -1,4 +1,5 @@
 "use client";
+
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
   ArrowDownRight,
@@ -22,20 +23,43 @@ import { useForm } from "@formspree/react";
 const FORMSPREE_ID = "xkjnoean";
 
 const FALLBACK = {
-  kinetic: "/bitlinks.png", // Matches lowercase filename in public folder
-  depth: "/k72.png",
-  mark: "/portfolio.png",
-  portrait: "/saim.jpg",      // Fixed from /avatar.jpeg to match your saim.jpg file
+  kinetic: "/bitlinks.webp",
+  depth: "/k72.webp",
+  mark: "/portfolio.webp",
+  portrait: "/saim.webp",
 };
 
-const fallbackProfile = {
+interface Profile {
+  name: string;
+  role: string;
+  headline: string;
+  bio: string;
+  email: string;
+  availability: string;
+  portraitUrl: string;
+  githubUrl: string;
+  linkedinUrl: string;
+  twitterUrl: string;
+}
+
+interface Project {
+  id: number | string;
+  title: string;
+  projectType: string;
+  summary: string;
+  imageUrl: string;
+  projectUrl: string;
+  tags: string[];
+}
+
+const fallbackProfile: Profile = {
   name: "Saim Ali",
   role: "Full-Stack Web Architect",
   headline: "Interfaces with a pulse.",
   bio: "I make complex digital products feel inevitable — fast to understand, satisfying to use, and precise down to the last transition.",
   email: "hello@saimalidev.com",
   availability: "Available for select freelance work",
-  portraitUrl: "/saim.jpg",    // Fixed filename reference
+  portraitUrl: "/saim.webp",
   githubUrl: "https://github.com",
   linkedinUrl: "https://linkedin.com",
   twitterUrl: "https://x.com",
@@ -50,14 +74,14 @@ const fallbackTechnologies = [
   "Node.js",
 ];
 
-const fallbackProjects = [
+const fallbackProjects: Project[] = [
   {
     id: 1,
     title: "BITLINKS",
     projectType: "URL Shortening & Real-time Analytics Engine",
     summary:
       "A URL shortening and real-time analytics engine built for fast, measurable sharing.",
-    imageUrl: "/bitlinks.png",
+    imageUrl: "/bitlinks.webp",
     projectUrl: "https://bitlinksdev.vercel.app",
     tags: ["Next.js", "Tailwind", "Framer"],
   },
@@ -67,7 +91,7 @@ const fallbackProjects = [
     projectType: "Interactive Agency Platform",
     summary:
       "A motion-led agency platform translating bold art direction into a responsive digital system.",
-    imageUrl: "/k72.png",
+    imageUrl: "/k72.webp",
     projectUrl: "https://k72agency.vercel.app",
     tags: ["React", "Motion", "Three.js"],
   },
@@ -77,13 +101,13 @@ const fallbackProjects = [
     projectType: "Industrial Portfolio System",
     summary:
       "An earlier portfolio system exploring industrial UI, motion, and a modular archive language.",
-    imageUrl: "/portfolio.png",
+    imageUrl: "/portfolio.webp",
     projectUrl: "https://saimaliportfolio.vercel.app",
     tags: ["Industrial UI", "GSAP", "Next.js"],
   },
 ];
 
-function Label({ children }: { children: string }) {
+function Label({ children }: { children: React.ReactNode }) {
   return <span className="studio-label">{children}</span>;
 }
 
@@ -98,17 +122,18 @@ export default function Home() {
 
   const [formState, handleSubmit] = useForm(FORMSPREE_ID);
 
-  const portfolioQuery = trpc?.portfolio?.getAll?.useQuery?.(undefined, {
+  // Unconditional hook call complying with React Rules of Hooks
+  const portfolioQuery = trpc.portfolio.getAll.useQuery(undefined, {
     staleTime: 60_000,
     retry: false,
-  }) ?? { data: null, isLoading: false, isError: true };
+  });
 
-  const profile = portfolioQuery?.data?.profile ?? fallbackProfile;
-  const projects = portfolioQuery?.data?.projects?.length
+  const profile: Profile = portfolioQuery.data?.profile ?? fallbackProfile;
+  const projects: Project[] = portfolioQuery.data?.projects?.length
     ? portfolioQuery.data.projects
     : fallbackProjects;
-  const technologies = portfolioQuery?.data?.technologies?.length
-    ? portfolioQuery.data.technologies.map((item: any) => item.name)
+  const technologies: string[] = portfolioQuery.data?.technologies?.length
+    ? portfolioQuery.data.technologies.map((item: { name: string }) => item.name)
     : fallbackTechnologies;
 
   const { scrollYProgress } = useScroll();
@@ -157,11 +182,20 @@ export default function Home() {
         : "false";
     };
     syncMotionPreference();
-    media.addEventListener("change", syncMotionPreference);
+
+    if (media.addEventListener) {
+      media.addEventListener("change", syncMotionPreference);
+    } else {
+      media.addListener(syncMotionPreference);
+    }
 
     return () => {
       cancelAnimationFrame(frameId);
-      media.removeEventListener("change", syncMotionPreference);
+      if (media.removeEventListener) {
+        media.removeEventListener("change", syncMotionPreference);
+      } else {
+        media.removeListener(syncMotionPreference);
+      }
     };
   }, []);
 
@@ -177,6 +211,7 @@ export default function Home() {
     };
     document.addEventListener("keydown", onKeyDown);
     document.body.style.overflow = menuOpen ? "hidden" : "";
+
     if (menuOpen) {
       window.requestAnimationFrame(() =>
         menuPanelRef.current
@@ -186,6 +221,7 @@ export default function Home() {
     } else {
       menuTriggerRef.current?.focus();
     }
+
     return () => {
       document.removeEventListener("keydown", onKeyDown);
       document.body.style.overflow = "";
@@ -203,11 +239,11 @@ export default function Home() {
       if (!items.length) return;
       const first = items[0];
       const last = items[items.length - 1];
+
       if (event.shiftKey && document.activeElement === first) {
         event.preventDefault();
         last.focus();
-      }
-      if (!event.shiftKey && document.activeElement === last) {
+      } else if (!event.shiftKey && document.activeElement === last) {
         event.preventDefault();
         first.focus();
       }
@@ -427,7 +463,7 @@ export default function Home() {
             </p>
           </div>
           <div className="zajno-work-list">
-            {projects.map((project: any, index: number) => (
+            {projects.map((project, index) => (
               <a
                 className={`zajno-work-row ${
                   hoveredProject === index ? "zajno-work-row--active" : ""
