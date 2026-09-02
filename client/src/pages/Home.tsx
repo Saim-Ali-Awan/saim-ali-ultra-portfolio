@@ -56,7 +56,7 @@ const fallbackProfile: Profile = {
   name: "Saim Ali",
   role: "Full-Stack Web Architect",
   headline: "Interfaces with a pulse.",
-  bio: "I make complex digital products feel inevitable — fast to understand, satisfying to use, and precise down to the last transition.",
+  bio: "I make complex digital products feel inevitable fast to understand, satisfying to use, and precise down to the last transition.",
   email: "hello@saimalidev.com",
   availability: "Available for select freelance work",
   portraitUrl: "/saim.webp",
@@ -97,8 +97,8 @@ const fallbackProjects: Project[] = [
   },
   {
     id: 3,
-    title: "CORE PORTFOLIO",
-    projectType: "Industrial Portfolio System",
+    title: "OLD PORTFOLIO",
+    projectType: "I made this before I knew what I was doing",
     summary:
       "An earlier portfolio system exploring industrial UI, motion, and a modular archive language.",
     imageUrl: "/portfolio.webp",
