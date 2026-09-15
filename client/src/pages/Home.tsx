@@ -17,9 +17,8 @@ import {
   useSpring,
   useTransform,
 } from "framer-motion";
-// ── NEW: GSAP for the bouncing code-drawn arrow ───────────────
 import gsap from "gsap";
-// ── NEW: haptics ──────────────────────────────────────────────
+// ── Haptics ───────────────────────────────────────────────────
 import { haptic } from "../lib/haptics";
 import { Link } from "wouter";
 import { finishBootLoader, waitForFirstRender } from "../lib/bootLoader";
@@ -53,7 +52,7 @@ function Label({ children }: { children: React.ReactNode }) {
   return <span className="studio-label">{children}</span>;
 }
 
-/* ── NEW: pure-code down arrow, bounced with GSAP ─────────────── */
+/* ── Pure-code down arrow, bounced with GSAP ──────────────────── */
 function CodedDownArrow() {
   const arrowRef = useRef<SVGSVGElement | null>(null);
 
@@ -82,7 +81,6 @@ function CodedDownArrow() {
     return () => ctx.revert();
   }, []);
 
-  // Down arrow drawn entirely with code (inline SVG path — no icon lib)
   return (
     <svg
       ref={arrowRef}
@@ -103,20 +101,22 @@ function CodedDownArrow() {
   );
 }
 
-/* ── NEW: floating scroll-down tag (framer enter/exit + GSAP arrow) ── */
+/* ── Floating scroll-down tag — BOTTOM RIGHT corner ───────────── */
 function ScrollDownTag({ onClick }: { onClick: () => void }) {
   return (
     <motion.button
       type="button"
       onClick={onClick}
       aria-label="Scroll to next section"
-      initial={{ opacity: 0, y: 26, x: "-50%", scale: 0.85 }}
-      animate={{ opacity: 1, y: 0, x: "-50%", scale: 1 }}
-      exit={{ opacity: 0, y: 26, x: "-50%", scale: 0.85 }}
+      data-cursor="DOWN"
+      data-haptic="off" // ← opts out of global tap; fires its own "medium"
+      initial={{ opacity: 0, y: 26, scale: 0.85 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      exit={{ opacity: 0, y: 26, scale: 0.85 }}
       transition={{ duration: 0.4, ease: [0.23, 1, 0.32, 1] }}
       style={{
         position: "fixed",
-        left: "50%",
+        right: "1.4rem",   // ← BOTTOM RIGHT
         bottom: "1.4rem",
         zIndex: 80,
         display: "inline-flex",
@@ -154,7 +154,7 @@ export default function Home() {
   const [formStatus, setFormStatus] = useState<FormStatus>("idle");
   const wasMenuOpen = useRef(false);
 
-  // ── NEW: scroll-down tag visibility state ─────────────────────
+  // ── Scroll-down tag visibility state ──────────────────────────
   const [showScrollTag, setShowScrollTag] = useState(false);
   const scrollHideTimer = useRef<number | null>(null);
 
@@ -251,7 +251,7 @@ export default function Home() {
     return () => panel?.removeEventListener("keydown", trapFocus);
   }, [menuOpen]);
 
-  // ── NEW: show tag while scrolling, hide with animation ~1.1s after stop ──
+  // ── Show tag while scrolling, hide ~1.1s after scrolling stops ──
   useEffect(() => {
     const onScroll = () => {
       const doc = document.documentElement;
@@ -261,12 +261,12 @@ export default function Home() {
       window.clearTimeout(scrollHideTimer.current!);
 
       if (atBottom) {
-        setShowScrollTag(false); // nothing left to scroll → fade out
+        setShowScrollTag(false);
         return;
       }
-      setShowScrollTag(true); // scrolling → animate in
+      setShowScrollTag(true);
       scrollHideTimer.current = window.setTimeout(
-        () => setShowScrollTag(false), // scroll stopped → animate out
+        () => setShowScrollTag(false),
         1100
       );
     };
@@ -282,7 +282,12 @@ export default function Home() {
     document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
   };
 
-  // ── NEW: tag tap → jump to the next section ────────────────────
+  // ── Tag tap → stronger "medium" haptic + jump to next section ──
+  const handleScrollTagClick = () => {
+    haptic("medium"); // explicit, stronger confirmation
+    scrollToNextSection();
+  };
+
   const scrollToNextSection = () => {
     const sections = Array.from(
       document.querySelectorAll<HTMLElement>("main section[id], main article[id]")
@@ -293,6 +298,12 @@ export default function Home() {
     (target ?? sections[sections.length - 1])?.scrollIntoView({
       behavior: "smooth",
     });
+  };
+
+  const handleMenuToggle = () => {
+    // data-haptic="off" on the button → fire our own differentiated patterns
+    haptic(menuOpen ? "light" : "medium"); // light = closing, medium = opening
+    setMenuOpen((open) => !open);
   };
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -309,10 +320,10 @@ export default function Home() {
       if (!response.ok) throw new Error("Form failed");
       form.reset();
       setFormStatus("succeeded");
-      haptic("success"); // ── NEW: success haptic pattern
+      haptic("success"); // ✅ SUCCESS haptic — email sent
     } catch {
       setFormStatus("error");
-      haptic("error"); // ── NEW: error haptic pattern
+      haptic("error"); // ❌ ERROR haptic — send failed
     }
   };
 
@@ -345,7 +356,8 @@ export default function Home() {
           type="button"
           className={`zajno-menu ${menuOpen ? "zajno-menu--open" : ""}`}
           data-cursor="MENU"
-          onClick={() => setMenuOpen((open) => !open)}
+          data-haptic="off" // ← own haptic in handleMenuToggle (no double-fire)
+          onClick={handleMenuToggle}
           aria-expanded={menuOpen}
           aria-label={menuOpen ? "Close navigation" : "Open navigation"}
           aria-controls="site-index-panel"
@@ -371,7 +383,7 @@ export default function Home() {
             data-cursor="GO"
             onClick={(event) => {
               event.preventDefault();
-              scrollTo(link.id);
+              scrollTo(link.id); // global "tap" haptic fires automatically
             }}
           >
             <small>0{index + 1}</small>
@@ -828,7 +840,6 @@ export default function Home() {
                 <input
                   data-cursor="WRITE"
                   required
-                  minLength={10}
                   type="email"
                   name="email"
                   autoComplete="email"
@@ -900,9 +911,11 @@ export default function Home() {
         </section>
       </div>
 
-      {/* ── NEW: floating scroll-down tag with animated code-drawn arrow ── */}
+      {/* ── Floating scroll tag — pinned BOTTOM RIGHT ── */}
       <AnimatePresence>
-        {showScrollTag && <ScrollDownTag key="scroll-down-tag" onClick={scrollToNextSection} />}
+        {showScrollTag && (
+          <ScrollDownTag key="scroll-down-tag" onClick={handleScrollTagClick} />
+        )}
       </AnimatePresence>
     </main>
   );
