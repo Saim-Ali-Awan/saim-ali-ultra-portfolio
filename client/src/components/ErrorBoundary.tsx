@@ -1,5 +1,6 @@
 import React, { Component, ReactNode } from "react";
 import { AlertTriangle, RotateCcw } from "lucide-react";
+import { finishBootLoader } from "../lib/bootLoader";
 
 interface Props {
   children: ReactNode;
@@ -22,6 +23,7 @@ class ErrorBoundary extends Component<Props, State> {
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
     console.error("ErrorBoundary caught an error:", error, errorInfo);
+    finishBootLoader();
   }
 
   render() {

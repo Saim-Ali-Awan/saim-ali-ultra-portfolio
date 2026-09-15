@@ -1563,7 +1563,7 @@ html[data-reduced-motion="true"] .overlay-nav--open button {
 .zajno-menu-panel--open {
   transform: translateX(0);
 }
-.zajno-menu-panel button {
+.zajno-menu-panel a {
   display: flex;
   align-items: center;
   gap: 18px;
@@ -1572,6 +1572,8 @@ html[data-reduced-motion="true"] .overlay-nav--open button {
   border-bottom: 1px solid rgba(17, 17, 17, 0.4);
   padding: 13px 0;
   background: none;
+  color: inherit;
+  text-decoration: none;
   text-align: left;
   font:
     700 clamp(38px, 5vw, 64px)/0.96 "Space Grotesk",
@@ -1580,30 +1582,30 @@ html[data-reduced-motion="true"] .overlay-nav--open button {
   opacity: 0;
   transform: translateX(30px);
 }
-.zajno-menu-panel button small {
+.zajno-menu-panel a small {
   width: 22px;
   font:
     500 9px "IBM Plex Mono",
     monospace;
   letter-spacing: 0.08em;
 }
-.zajno-menu-panel button svg {
+.zajno-menu-panel a svg {
   margin-left: auto;
   transition: transform 0.25s ease;
 }
-.zajno-menu-panel button:hover svg {
+.zajno-menu-panel a:hover svg {
   transform: translate(4px, -4px);
 }
-.zajno-menu-panel--open button {
+.zajno-menu-panel--open a {
   animation: zajno-nav-in 0.5s cubic-bezier(0.23, 1, 0.32, 1) forwards;
 }
-.zajno-menu-panel--open button:nth-child(2) {
+.zajno-menu-panel--open a:nth-child(2) {
   animation-delay: 0.07s;
 }
-.zajno-menu-panel--open button:nth-child(3) {
+.zajno-menu-panel--open a:nth-child(3) {
   animation-delay: 0.14s;
 }
-.zajno-menu-panel--open button:nth-child(4) {
+.zajno-menu-panel--open a:nth-child(4) {
   animation-delay: 0.21s;
 }
 .zajno-menu-panel p {
@@ -2240,7 +2242,7 @@ html[data-reduced-motion="true"] .overlay-nav--open button {
     width: 100%;
     padding: 100px 5vw 35px;
   }
-  .zajno-menu-panel button {
+  .zajno-menu-panel a {
     font-size: 42px;
   }
 }
@@ -2253,14 +2255,14 @@ html[data-reduced-motion="true"] .overlay-nav--open button {
     display: none !important;
   }
   .zajno-menu-panel,
-  .zajno-menu-panel button,
+  .zajno-menu-panel a,
   .zajno-hero__visual img,
   .zajno-work-row,
   .zajno-work-preview {
     transition: none !important;
     animation: none !important;
   }
-  .zajno-menu-panel--open button {
+  .zajno-menu-panel--open a {
     opacity: 1;
     transform: none;
   }
@@ -2272,7 +2274,7 @@ html[data-reduced-motion="true"] .zajno-loader {
 html[data-reduced-motion="true"] .zajno-cursor {
   display: none !important;
 }
-html[data-reduced-motion="true"] .zajno-menu-panel--open button {
+html[data-reduced-motion="true"] .zajno-menu-panel--open a {
   animation: none !important;
   opacity: 1;
   transform: none;
@@ -2722,14 +2724,16 @@ html[data-reduced-motion="true"] .zajno-menu-panel--open button {
 }
 .zajno-menu:focus-visible,
 .zajno-brand:focus-visible,
-.zajno-menu-panel button:focus-visible,
+.zajno-menu-panel a:focus-visible,
 .route-header a:focus-visible {
   outline: 2px solid var(--z-acid);
   outline-offset: 7px;
 }
-.zajno-menu-panel button:focus-visible {
-  background: #111;
-  color: z#d8ff3e;
+.zajno-menu-panel a:focus-visible {
+  outline: 2px solid #111;
+  outline-offset: 6px;
+  background: transparent;
+  color: inherit;
 }
 .zajno-menu-panel[aria-hidden="true"] {
   visibility: hidden;
@@ -2787,11 +2791,11 @@ html[data-reduced-motion="true"] .zajno-menu-panel--open button {
     padding-left: 4vw;
     padding-right: 4vw;
   }
-  .zajno-menu-panel button {
+  .zajno-menu-panel a {
     font-size: clamp(22px, 7vw, 34px);
     gap: 9px;
   }
-  .zajno-menu-panel button small {
+  .zajno-menu-panel a small {
     width: 14px;
     font-size: 8px;
   }
@@ -2822,7 +2826,7 @@ html[data-reduced-motion="true"] .zajno-section h2 {
 /* ── Menu polish: centered items, fall-down motion, invert hover, white submit ── */
 
 /* 1. Center the menu text (arrow stays beside the label) */
-.zajno-menu-panel button {
+.zajno-menu-panel a {
   justify-content: center;
   text-align: center;
   transform: translateY(-16px); /* replaces the old translateX(30px) start */
@@ -2830,12 +2834,12 @@ html[data-reduced-motion="true"] .zajno-section h2 {
     background 0.25s ease,
     color 0.25s ease;
 }
-.zajno-menu-panel button svg {
+.zajno-menu-panel a svg {
   margin-left: 0;
 }
 
 /* 2. Subtle text falling down on OPEN (drops into place from above) */
-.zajno-menu-panel--open button {
+.zajno-menu-panel--open a {
   animation: zajno-nav-fall-in 0.5s cubic-bezier(0.23, 1, 0.32, 1) forwards;
 }
 @keyframes zajno-nav-fall-in {
@@ -2851,16 +2855,16 @@ html[data-reduced-motion="true"] .zajno-section h2 {
 /* Note: your existing nth-child(2/3/4) delay rules still apply — the stagger is kept. */
 
 /* 3. Text falling down + fading on CLOSE */
-.zajno-menu-panel:not(.zajno-menu-panel--open) button {
+.zajno-menu-panel:not(.zajno-menu-panel--open) a {
   animation: zajno-nav-fall-out 0.32s ease both;
 }
-.zajno-menu-panel:not(.zajno-menu-panel--open) button:nth-child(2) {
+.zajno-menu-panel:not(.zajno-menu-panel--open) a:nth-child(2) {
   animation-delay: 0.05s;
 }
-.zajno-menu-panel:not(.zajno-menu-panel--open) button:nth-child(3) {
+.zajno-menu-panel:not(.zajno-menu-panel--open) a:nth-child(3) {
   animation-delay: 0.1s;
 }
-.zajno-menu-panel:not(.zajno-menu-panel--open) button:nth-child(4) {
+.zajno-menu-panel:not(.zajno-menu-panel--open) a:nth-child(4) {
   animation-delay: 0.15s;
 }
 @keyframes zajno-nav-fall-out {
@@ -2874,14 +2878,16 @@ html[data-reduced-motion="true"] .zajno-section h2 {
   }
 }
 
-/* 4. Hover: black background, white text + arrow */
-.zajno-menu-panel button:hover {
-  background: #111;
-  color: #fff;
-}
-.zajno-menu-panel button:hover small,
-.zajno-menu-panel button:hover svg {
-  color: #fff;
+/* 4. Hover only on real hover — never selected by default */
+@media (hover: hover) and (pointer: fine) {
+  .zajno-menu-panel a:hover {
+    background: #111;
+    color: #fff;
+  }
+  .zajno-menu-panel a:hover small,
+  .zajno-menu-panel a:hover svg {
+    color: #fff;
+  }
 }
 
 /* 5. Submit button text white by default */
@@ -2891,21 +2897,62 @@ html[data-reduced-motion="true"] .zajno-section h2 {
 
 /* Respect reduced motion for the new animations */
 @media (prefers-reduced-motion: reduce) {
-  .zajno-menu-panel button,
-  .zajno-menu-panel--open button,
-  .zajno-menu-panel:not(.zajno-menu-panel--open) button {
+  .zajno-menu-panel a,
+  .zajno-menu-panel--open a,
+  .zajno-menu-panel:not(.zajno-menu-panel--open) a {
     animation: none !important;
     transition: none !important;
     transform: none;
   }
-  .zajno-menu-panel--open button {
+  .zajno-menu-panel--open a {
     opacity: 1;
   }
 }
-html[data-reduced-motion="true"] .zajno-menu-panel button {
+html[data-reduced-motion="true"] .zajno-menu-panel a {
   animation: none !important;
   transform: none;
 }
-html[data-reduced-motion="true"] .zajno-menu-panel--open button {
+html[data-reduced-motion="true"] .zajno-menu-panel--open a {
   opacity: 1;
 }
+
+.zajno-notes {
+  background: var(--z-paper);
+  color: var(--z-black);
+}
+.zajno-notes h2 {
+  max-width: 14ch;
+  margin: 0 0 28px;
+  font: 600 clamp(42px, 7vw, 88px)/0.92 "Space Grotesk", sans-serif;
+  letter-spacing: -0.07em;
+}
+.zajno-notes p {
+  max-width: 62ch;
+  margin: 0 0 1.15em;
+  font-size: 1.05rem;
+  line-height: 1.65;
+}
+.zajno-notes a {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.legal-page .legal-copy {
+  max-width: 720px;
+}
+.legal-copy h2 {
+  margin: 2rem 0 0.75rem;
+  font-size: clamp(1.4rem, 3vw, 2rem);
+}
+.legal-copy p,
+.legal-copy a {
+  font-size: 1.02rem;
+  line-height: 1.7;
+}
+.legal-updated {
+  opacity: 0.65;
+  font: 500 12px "IBM Plex Mono", monospace !important;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+

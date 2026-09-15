@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://saimalidev.com/sitemap.xml

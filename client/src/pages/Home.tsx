@@ -17,10 +17,15 @@ import {
   useSpring,
   useTransform,
 } from "framer-motion";
-import { trpc } from "../lib/trpc";
-import { useForm } from "@formspree/react";
-
-const FORMSPREE_ID = "xkjnoean";
+import { Link } from "wouter";
+import { finishBootLoader, waitForFirstRender } from "../lib/bootLoader";
+import {
+  DEFAULT_PROFILE,
+  DEFAULT_PROJECTS,
+  DEFAULT_TECHNOLOGIES,
+  FORMSPREE_ID,
+  SITE_EMAIL,
+} from "../lib/site";
 
 const FALLBACK = {
   kinetic: "/bitlinks.webp",
@@ -29,83 +34,16 @@ const FALLBACK = {
   portrait: "/saim.webp",
 };
 
-interface Profile {
-  name: string;
-  role: string;
-  headline: string;
-  bio: string;
-  email: string;
-  availability: string;
-  portraitUrl: string;
-  githubUrl: string;
-  linkedinUrl: string;
-  twitterUrl: string;
-}
-
-interface Project {
-  id: number | string;
-  title: string;
-  projectType: string;
-  summary: string;
-  imageUrl: string;
-  projectUrl: string;
-  tags: string[];
-}
-
-const fallbackProfile: Profile = {
-  name: "Saim Ali",
-  role: "Full-Stack Web Architect",
-  headline: "Interfaces with a pulse.",
-  bio: "I make complex digital products feel inevitable fast to understand, satisfying to use, and precise down to the last transition.",
-  email: "hello@saimalidev.com",
-  availability: "Available for select freelance work",
-  portraitUrl: "/saim.webp",
-  githubUrl: "https://github.com",
-  linkedinUrl: "https://linkedin.com",
-  twitterUrl: "https://x.com",
+const FEATURED_PROJECT = {
+  id: "alaman-security",
+  title: "ALAMAN SECURITY",
+  projectType: "Security Services Platform",
+  projectUrl: "https://alamansecurity.vercel.app/",
+  imageUrl:
+    "/Alaman.webp",
 };
 
-const fallbackTechnologies = [
-  "Next.js",
-  "React",
-  "TypeScript",
-  "Tailwind CSS",
-  "Supabase",
-  "Node.js",
-];
-
-const fallbackProjects: Project[] = [
-  {
-    id: 1,
-    title: "BITLINKS",
-    projectType: "URL Shortening & Real-time Analytics Engine",
-    summary:
-      "A URL shortening and real-time analytics engine built for fast, measurable sharing.",
-    imageUrl: "/bitlinks.webp",
-    projectUrl: "https://bitlinksdev.vercel.app",
-    tags: ["Next.js", "Tailwind", "Framer"],
-  },
-  {
-    id: 2,
-    title: "K72 PLATFORM",
-    projectType: "Interactive Agency Platform",
-    summary:
-      "A motion-led agency platform translating bold art direction into a responsive digital system.",
-    imageUrl: "/k72.webp",
-    projectUrl: "https://k72agency.vercel.app",
-    tags: ["React", "Motion", "Three.js"],
-  },
-  {
-    id: 3,
-    title: "OLD PORTFOLIO",
-    projectType: "I made this before I knew what I was doing",
-    summary:
-      "An earlier portfolio system exploring industrial UI, motion, and a modular archive language.",
-    imageUrl: "/portfolio.webp",
-    projectUrl: "https://saimaliportfolio.vercel.app",
-    tags: ["Industrial UI", "GSAP", "Next.js"],
-  },
-];
+type FormStatus = "idle" | "submitting" | "succeeded" | "error";
 
 function Label({ children }: { children: React.ReactNode }) {
   return <span className="studio-label">{children}</span>;
@@ -113,28 +51,20 @@ function Label({ children }: { children: React.ReactNode }) {
 
 export default function Home() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [introReady, setIntroReady] = useState(false);
   const menuTriggerRef = useRef<HTMLButtonElement>(null);
   const menuPanelRef = useRef<HTMLElement>(null);
   const formRef = useRef<HTMLFormElement>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [progressCount, setProgressCount] = useState(0);
   const [hoveredProject, setHoveredProject] = useState<number | null>(null);
+  const [formStatus, setFormStatus] = useState<FormStatus>("idle");
+  const wasMenuOpen = useRef(false);
 
-  const [formState, handleSubmit] = useForm(FORMSPREE_ID);
-
-  // Unconditional hook call complying with React Rules of Hooks
-  const portfolioQuery = trpc.portfolio.getAll.useQuery(undefined, {
-    staleTime: 60_000,
-    retry: false,
-  });
-
-  const profile: Profile = portfolioQuery.data?.profile ?? fallbackProfile;
-  const projects: Project[] = portfolioQuery.data?.projects?.length
-    ? portfolioQuery.data.projects
-    : fallbackProjects;
-  const technologies: string[] = portfolioQuery.data?.technologies?.length
-    ? portfolioQuery.data.technologies.map((item: { name: string }) => item.name)
-    : fallbackTechnologies;
+  const profile = DEFAULT_PROFILE;
+  const projects = useMemo(
+    () => [FEATURED_PROJECT, ...DEFAULT_PROJECTS],
+    []
+  );
+  const technologies = DEFAULT_TECHNOLOGIES;
 
   const { scrollYProgress } = useScroll();
   const progress = useSpring(scrollYProgress, {
@@ -146,35 +76,17 @@ export default function Home() {
   const heroY = useTransform(progress, [0, 0.2], [0, -90]);
 
   const navLinks = useMemo(
-    () => ["work", "studio", "playground", "contact"],
+    () => [
+      { id: "work", label: "work" },
+      { id: "studio", label: "studio" },
+      { id: "playground", label: "playground" },
+      { id: "contact", label: "contact" },
+    ],
     []
   );
 
   useEffect(() => {
-    let frameId: number;
-    const startTime = performance.now();
-    const duration = 1400;
-
-    const updateProgress = (currentTime: number) => {
-      const elapsed = currentTime - startTime;
-      const rawProgress = Math.min(1, elapsed / duration);
-      const easedProgress = 1 - Math.pow(1 - rawProgress, 3);
-      const count = Math.floor(easedProgress * 100);
-
-      setProgressCount(count);
-
-      if (rawProgress < 1) {
-        frameId = requestAnimationFrame(updateProgress);
-      } else {
-        setProgressCount(100);
-        setTimeout(() => {
-          setIsLoading(false);
-        }, 350);
-      }
-    };
-
-    frameId = requestAnimationFrame(updateProgress);
-
+    let cancelled = false;
     const media = window.matchMedia("(prefers-reduced-motion: reduce)");
     const syncMotionPreference = () => {
       document.documentElement.dataset.reducedMotion = media.matches
@@ -182,28 +94,21 @@ export default function Home() {
         : "false";
     };
     syncMotionPreference();
+    media.addEventListener?.("change", syncMotionPreference);
 
-    if (media.addEventListener) {
-      media.addEventListener("change", syncMotionPreference);
-    } else {
-      media.addListener(syncMotionPreference);
-    }
+    waitForFirstRender().then(
+      () => {
+        if (cancelled) return;
+        finishBootLoader();
+        setIntroReady(true);
+      }
+    );
 
     return () => {
-      cancelAnimationFrame(frameId);
-      if (media.removeEventListener) {
-        media.removeEventListener("change", syncMotionPreference);
-      } else {
-        media.removeListener(syncMotionPreference);
-      }
+      cancelled = true;
+      media.removeEventListener?.("change", syncMotionPreference);
     };
   }, []);
-
-  useEffect(() => {
-    if (formState.succeeded) {
-      formRef.current?.reset();
-    }
-  }, [formState.succeeded]);
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
@@ -212,15 +117,10 @@ export default function Home() {
     document.addEventListener("keydown", onKeyDown);
     document.body.style.overflow = menuOpen ? "hidden" : "";
 
-    if (menuOpen) {
-      window.requestAnimationFrame(() =>
-        menuPanelRef.current
-          ?.querySelector<HTMLButtonElement>("button")
-          ?.focus()
-      );
-    } else {
+    if (wasMenuOpen.current && !menuOpen) {
       menuTriggerRef.current?.focus();
     }
+    wasMenuOpen.current = menuOpen;
 
     return () => {
       document.removeEventListener("keydown", onKeyDown);
@@ -234,7 +134,7 @@ export default function Home() {
     const trapFocus = (event: KeyboardEvent) => {
       if (event.key !== "Tab") return;
       const items = Array.from(
-        panel?.querySelectorAll<HTMLButtonElement>("button") ?? []
+        panel?.querySelectorAll<HTMLElement>("a, button") ?? []
       );
       if (!items.length) return;
       const first = items[0];
@@ -257,38 +157,27 @@ export default function Home() {
     document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
   };
 
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const form = event.currentTarget;
+    const data = new FormData(form);
+    setFormStatus("submitting");
+    try {
+      const response = await fetch(`https://formspree.io/f/${FORMSPREE_ID}`, {
+        method: "POST",
+        headers: { Accept: "application/json" },
+        body: data,
+      });
+      if (!response.ok) throw new Error("Form failed");
+      form.reset();
+      setFormStatus("succeeded");
+    } catch {
+      setFormStatus("error");
+    }
+  };
+
   return (
     <main className="zajno-shell">
-      <AnimatePresence>
-        {isLoading && (
-          <motion.div
-            key="zajno-loader"
-            className="zajno-loader zajno-loader--visible"
-            initial={{ opacity: 1, filter: "blur(0px)" }}
-            exit={{
-              opacity: 0,
-              filter: "blur(12px)",
-              scale: 1.02,
-              transition: { duration: 0.75, ease: [0.77, 0, 0.175, 1] },
-            }}
-            style={{ pointerEvents: "all" }}
-            aria-hidden={!isLoading}
-          >
-            <span>SAIMALI® / DIGITAL STUDIO</span>
-            <strong>{String(progressCount).padStart(2, "0")}</strong>
-            <span>LOADING EXPERIENCE</span>
-            <div
-              className="zajno-loader__bar"
-              style={{
-                transform: `scaleX(${progressCount / 100})`,
-                transformOrigin: "left center",
-                transition: "transform 0.05s linear",
-              }}
-            />
-          </motion.div>
-        )}
-      </AnimatePresence>
-
       <motion.div
         className="zajno-progress"
         style={{ scaleX: progress }}
@@ -298,6 +187,7 @@ export default function Home() {
       <header className="zajno-header">
         <button
           className="zajno-brand"
+          type="button"
           data-cursor="TOP"
           onClick={() => scrollTo("top")}
           aria-label="Back to top"
@@ -312,6 +202,7 @@ export default function Home() {
         </div>
         <button
           ref={menuTriggerRef}
+          type="button"
           className={`zajno-menu ${menuOpen ? "zajno-menu--open" : ""}`}
           data-cursor="MENU"
           onClick={() => setMenuOpen((open) => !open)}
@@ -329,19 +220,24 @@ export default function Home() {
         id="site-index-panel"
         className={`zajno-menu-panel ${menuOpen ? "zajno-menu-panel--open" : ""}`}
         aria-hidden={!menuOpen}
+        aria-label="Page sections"
       >
         {navLinks.map((link, index) => (
-          <button
-            key={link}
+          <a
+            key={link.id}
+            href={`#${link.id}`}
             tabIndex={menuOpen ? 0 : -1}
-            aria-label={`Go to ${link}`}
+            aria-label={`Go to ${link.label}`}
             data-cursor="GO"
-            onClick={() => scrollTo(link)}
+            onClick={(event) => {
+              event.preventDefault();
+              scrollTo(link.id);
+            }}
           >
             <small>0{index + 1}</small>
-            {link}
+            {link.label}
             <ArrowUpRight size={19} />
-          </button>
+          </a>
         ))}
         <p>
           Independent digital practice
@@ -352,10 +248,7 @@ export default function Home() {
 
       <div className="zajno-page-content">
         <section id="top" className="zajno-hero" style={{ textAlign: "center" }}>
-          <div
-            className="zajno-hero__top"
-            style={{ justifyContent: "center" }}
-          >
+          <div className="zajno-hero__top" style={{ justifyContent: "center" }}>
             <Label>Multan • PK</Label>
             <Label>Independent practice</Label>
           </div>
@@ -390,9 +283,9 @@ export default function Home() {
                   data-text="Designing"
                   initial={{ y: "100%", opacity: 0 }}
                   animate={
-                    isLoading
-                      ? { y: "100%", opacity: 0 }
-                      : { y: 0, opacity: 1 }
+                    introReady
+                      ? { y: 0, opacity: 1 }
+                      : { y: "100%", opacity: 0 }
                   }
                   transition={{
                     duration: 0.75,
@@ -408,9 +301,9 @@ export default function Home() {
                   data-text="the feeling."
                   initial={{ y: "100%", opacity: 0 }}
                   animate={
-                    isLoading
-                      ? { y: "100%", opacity: 0 }
-                      : { y: 0, opacity: 1 }
+                    introReady
+                      ? { y: 0, opacity: 1 }
+                      : { y: "100%", opacity: 0 }
                   }
                   transition={{
                     duration: 0.75,
@@ -424,6 +317,7 @@ export default function Home() {
               <p>{profile.bio}</p>
               <button
                 className="zajno-arrow-link"
+                type="button"
                 data-cursor="WORK"
                 onClick={() => scrollTo("work")}
               >
@@ -459,7 +353,8 @@ export default function Home() {
             </motion.h2>
             <p>
               From first principle to final polish, I build digital products
-              that feel as good as they function.
+              that feel as good as they function. Each project below is a live
+              product you can open, not a mock screenshot.
             </p>
           </div>
           <div className="zajno-work-list">
@@ -472,13 +367,58 @@ export default function Home() {
                 data-cursor="VIEW"
                 href={project.projectUrl || "#"}
                 key={project.id ?? project.title}
+                target="_blank"
+                rel="noopener noreferrer"
                 onMouseEnter={() => setHoveredProject(index)}
                 onMouseLeave={() => setHoveredProject(null)}
                 onFocus={() => setHoveredProject(index)}
                 onBlur={() => setHoveredProject(null)}
               >
                 <span className="zajno-work-row__number">0{index + 1}</span>
-                <span className="zajno-work-row__title">{project.title}</span>
+                <span
+                  className="zajno-work-row__title"
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: "0.75rem",
+                  }}
+                >
+                  {project.title}
+                  {index === 0 && (
+                    <span
+                      className="zajno-work-row__badge"
+                      style={{
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: "0.35rem",
+                        padding: "0.2rem 0.6rem",
+                        fontSize: "0.6rem",
+                        fontWeight: 600,
+                        letterSpacing: "0.12em",
+                        textTransform: "uppercase",
+                        lineHeight: 1,
+                        borderRadius: "999px",
+                        whiteSpace: "nowrap",
+                        color: "#111111",
+                        background: "#D8FE3E",
+                        border: "1px solid rgba(216, 254, 62)",
+                        boxShadow: "0 4px 14px rgba(216, 254, 62)",
+                      }}
+                    >
+                      <span
+                        style={{
+                          display: "inline-block",
+                          width: 6,
+                          height: 6,
+                          borderRadius: "50%",
+                          background: "#111111",
+                        }}
+                        aria-hidden="true"
+                      />
+                      Most Recent
+                    </span>
+                  )}
+                </span>
                 <span className="zajno-work-row__type">
                   {project.projectType}
                 </span>
@@ -509,7 +449,16 @@ export default function Home() {
                     >
                       <img
                         src={project.imageUrl || FALLBACK.kinetic}
-                        alt={project.title}
+                        alt={`${project.title} project preview`}
+                        width={300}
+                        height={175}
+                        loading="lazy"
+                        decoding="async"
+                        onError={(event) => {
+                          if (index === 0) {
+                            event.currentTarget.src = FALLBACK.kinetic;
+                          }
+                        }}
                         style={{
                           width: "100%",
                           height: "100%",
@@ -550,7 +499,11 @@ export default function Home() {
               <div className="zajno-studio__portrait">
                 <img
                   src={profile.portraitUrl || FALLBACK.portrait}
-                  alt={`Portrait of ${profile.name}`}
+                  alt={`Portrait of ${profile.name}, full-stack web developer in Multan, Pakistan`}
+                  width={720}
+                  height={900}
+                  loading="lazy"
+                  decoding="async"
                 />
                 <span>PROFILE_PHOTO.RAW</span>
               </div>
@@ -565,6 +518,7 @@ export default function Home() {
               </p>
               <button
                 className="zajno-arrow-link"
+                type="button"
                 data-cursor="CONTACT"
                 onClick={() => scrollTo("contact")}
               >
@@ -587,6 +541,46 @@ export default function Home() {
             </div>
           </div>
         </section>
+
+        <article id="notes" className="zajno-section zajno-notes">
+          <div className="zajno-section__head">
+            <Label>Practice notes</Label>
+            <span>02B</span>
+          </div>
+          <h2>How a small studio ships serious websites</h2>
+          <p>
+            I am {profile.name}, a full-stack web developer working from Multan,
+            Pakistan, with clients who need a site that loads quickly, reads
+            clearly, and still feels considered. Most of the work sits between
+            product thinking and front-end engineering: information architecture,
+            accessible layout, React or Next.js implementation, and the motion
+            that explains a product without getting in the way.
+          </p>
+          <p>
+            A typical engagement starts with constraints. Who is the page for,
+            what should they do in the first thirty seconds, and which pages
+            actually need to exist? From there I design in the browser whenever
+            possible so spacing, type, and performance are decided together. That
+            is slower than a slide deck and faster than discovering, after
+            development, that the hero image is a megabyte and the form cannot
+            be used on a phone.
+          </p>
+          <p>
+            For teams that already have a brand, I translate art direction into
+            a system: type scale, color tokens, reusable sections, and a CMS or
+            form flow that a non-developer can live with. For founders still
+            shaping the offer, I help cut the story down until a stranger can
+            repeat it. Either way the public site should be honest enough for
+            search engines and advertising review: real contact details, a
+            privacy policy, original writing, and live work instead of stock
+            filler.
+          </p>
+          <p>
+            If you want to talk about a product, a rebuild, or a marketing site
+            that has to earn its keep, write through the form below or email{" "}
+            <a href={`mailto:${SITE_EMAIL}`}>{SITE_EMAIL}</a>.
+          </p>
+        </article>
 
         <section id="playground" className="zajno-playground">
           <div className="zajno-section__head">
@@ -649,7 +643,8 @@ export default function Home() {
                 meant to have.
               </p>
               <p className="zajno-contact-note">
-                Use the form and your message lands directly in my inbox.
+                Use the form and your message lands directly in my inbox at{" "}
+                {SITE_EMAIL}.
               </p>
             </div>
 
@@ -660,9 +655,9 @@ export default function Home() {
             >
               <div className="zajno-form__status">
                 <span
-                  className={formState.submitting ? "" : "zajno-live"}
+                  className={formStatus === "idle" ? "zajno-live" : ""}
                   style={
-                    formState.submitting
+                    formStatus === "submitting"
                       ? {
                           background: "#c85a32",
                           boxShadow: "0 0 0 3px rgba(200,90,50,0.18)",
@@ -670,9 +665,9 @@ export default function Home() {
                       : undefined
                   }
                 />
-                {formState.submitting
+                {formStatus === "submitting"
                   ? "TRANSMITTING…"
-                  : formState.succeeded
+                  : formStatus === "succeeded"
                   ? "DELIVERED TO INBOX"
                   : "FORMSPREE / LIVE"}
               </div>
@@ -684,6 +679,7 @@ export default function Home() {
                   required
                   minLength={2}
                   name="name"
+                  autoComplete="name"
                   placeholder="Enter name"
                 />
               </label>
@@ -695,6 +691,7 @@ export default function Home() {
                   required
                   type="email"
                   name="email"
+                  autoComplete="email"
                   placeholder="Enter email"
                 />
               </label>
@@ -715,9 +712,9 @@ export default function Home() {
                 className="zajno-submit"
                 data-cursor="SEND"
                 type="submit"
-                disabled={formState.submitting}
+                disabled={formStatus === "submitting"}
               >
-                {formState.submitting ? (
+                {formStatus === "submitting" ? (
                   "Sending…"
                 ) : (
                   <>
@@ -726,16 +723,17 @@ export default function Home() {
                 )}
               </button>
 
-              {formState.succeeded && (
+              {formStatus === "succeeded" && (
                 <p className="zajno-success">
                   <Check size={15} /> Delivered to inbox — I'll respond within
                   24h.
                 </p>
               )}
 
-              {formState.errors && formState.errors.length > 0 && !formState.succeeded && (
+              {formStatus === "error" && (
                 <p className="zajno-success" style={{ color: "#c85a32" }}>
-                  <X size={15} /> Failed to send — try again or email directly.
+                  <X size={15} /> Failed to send — try again or email{" "}
+                  {SITE_EMAIL}.
                 </p>
               )}
             </form>
@@ -744,30 +742,18 @@ export default function Home() {
           <footer className="zajno-footer">
             <span>© 2026 {profile.name?.toUpperCase()}</span>
             <div>
-              <a
-                data-cursor="VISIT"
-                href={profile.githubUrl || "#"}
-                target="_blank"
-                rel="noreferrer"
-              >
+              <a href={profile.githubUrl || "#"} target="_blank" rel="noopener noreferrer">
                 GitHub
               </a>
-              <a
-                data-cursor="VISIT"
-                href={profile.linkedinUrl || "#"}
-                target="_blank"
-                rel="noreferrer"
-              >
+              <a href={profile.linkedinUrl || "#"} target="_blank" rel="noopener noreferrer">
                 LinkedIn
               </a>
-              <a
-                data-cursor="VISIT"
-                href={profile.twitterUrl || "#"}
-                target="_blank"
-                rel="noreferrer"
-              >
+              <a href={profile.twitterUrl || "#"} target="_blank" rel="noopener noreferrer">
                 Twitter
               </a>
+              <Link href="/about">About</Link>
+              <Link href="/privacy">Privacy</Link>
+              <Link href="/terms">Terms</Link>
             </div>
             <span>Made with intent</span>
           </footer>

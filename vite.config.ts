@@ -17,5 +17,15 @@ export default defineConfig({
   build: {
     outDir: path.resolve(__dirname, "dist"),
     emptyOutDir: true,
+    cssCodeSplit: true,
+    modulePreload: true,
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (id.includes("node_modules/framer-motion")) return "motion";
+          if (id.includes("node_modules/lucide-react")) return "icons";
+        },
+      },
+    },
   },
 });

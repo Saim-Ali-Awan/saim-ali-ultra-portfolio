@@ -2,18 +2,173 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1" />
-    <link rel="icon" type="image/x-icon" href="/favicon.ico?v=2" />
-    <meta name="theme-color" content="#f7f2e8" />
-    <meta name="description" content="Saima Ali builds responsive digital products, interactive 3D interfaces, and high-conversion web experiences." />
-    <title>Saim | Web Developer</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Saim Ali | Full-Stack Web Developer &amp; Digital Studio</title>
+    <meta
+      name="description"
+      content="Saim Ali is a full-stack web developer in Multan, Pakistan. Independent digital studio for product design, React and Next.js development, motion systems, and high-conversion websites."
+    />
+    <meta
+      name="keywords"
+      content="Saim Ali, web developer, full-stack developer, React, Next.js, Multan, Pakistan, portfolio, product design, freelance web developer"
+    />
+    <meta name="author" content="Saim Ali" />
+    <meta name="robots" content="index, follow, max-image-preview:large" />
+    <meta name="googlebot" content="index, follow" />
+    <link rel="canonical" href="https://saimalidev.com/" />
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="apple-touch-icon" href="/favicon.ico" />
+    <meta name="theme-color" content="#111111" />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="en_US" />
+    <meta property="og:site_name" content="Saim Ali" />
+    <meta property="og:url" content="https://saimalidev.com/" />
+    <meta property="og:title" content="Saim Ali | Full-Stack Web Developer &amp; Digital Studio" />
+    <meta
+      property="og:description"
+      content="Independent digital practice for people who care how software feels. Product design, web development, and motion systems."
+    />
+    <meta property="og:image" content="https://saimalidev.com/saim.webp" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Saim Ali | Full-Stack Web Developer" />
+    <meta
+      name="twitter:description"
+      content="Independent digital practice for product design, React/Next.js development, and high-conversion web experiences."
+    />
+    <meta name="twitter:image" content="https://saimalidev.com/saim.webp" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@graph": [
+          {
+            "@type": "WebSite",
+            "@id": "https://saimalidev.com/#website",
+            "url": "https://saimalidev.com/",
+            "name": "Saim Ali Digital Studio",
+            "description": "Portfolio and independent digital practice of full-stack web developer Saim Ali.",
+            "inLanguage": "en",
+            "publisher": { "@id": "https://saimalidev.com/#person" }
+          },
+          {
+            "@type": "Person",
+            "@id": "https://saimalidev.com/#person",
+            "name": "Saim Ali",
+            "jobTitle": "Full-Stack Web Developer",
+            "url": "https://saimalidev.com/",
+            "email": "mailto:hello@saimalidev.com",
+            "image": "https://saimalidev.com/saim.webp",
+            "address": {
+              "@type": "PostalAddress",
+              "addressLocality": "Multan",
+              "addressCountry": "PK"
+            },
+            "knowsAbout": [
+              "Web development",
+              "React",
+              "Next.js",
+              "Product design",
+              "Motion design"
+            ]
+          },
+          {
+            "@type": "ProfessionalService",
+            "@id": "https://saimalidev.com/#studio",
+            "name": "Saim Ali Digital Studio",
+            "url": "https://saimalidev.com/",
+            "image": "https://saimalidev.com/saim.webp",
+            "email": "mailto:hello@saimalidev.com",
+            "areaServed": "Worldwide",
+            "founder": { "@id": "https://saimalidev.com/#person" },
+            "serviceType": [
+              "Web development",
+              "Product design",
+              "Creative technology"
+            ]
+          }
+        ]
+      }
+    </script>
+    <style>
+      html, body { margin: 0; background: #111; }
+      #site-loader {
+        position: fixed; inset: 0; z-index: 9999;
+        display: flex; align-items: center; justify-content: space-between;
+        padding: 22px 3.3vw; background: #111; color: #f3f2ee;
+        font: 500 10px "IBM Plex Mono", ui-monospace, monospace;
+        letter-spacing: 0.08em; text-transform: uppercase;
+        transition: opacity 0.7s ease, visibility 0s linear 0.7s;
+      }
+      #site-loader.boot-loader--done { opacity: 0; visibility: hidden; pointer-events: none; }
+      #boot-count {
+        position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
+        color: #d8ff3e; font: 500 clamp(110px, 22vw, 340px)/1 "Space Grotesk", sans-serif;
+        letter-spacing: -0.12em;
+      }
+      #boot-bar {
+        position: absolute; left: 3.3vw; right: 3.3vw; bottom: 22px; height: 2px;
+        background: #d8ff3e; transform: scaleX(0); transform-origin: left center;
+      }
+    </style>
   </head>
   <body>
+    <div id="site-loader" role="status" aria-live="polite" aria-label="Loading site">
+      <span>SAIMALI® / DIGITAL STUDIO</span>
+      <strong id="boot-count">00</strong>
+      <span>LOADING EXPERIENCE</span>
+      <div id="boot-bar"></div>
+    </div>
     <div id="root"></div>
+    <noscript>
+      <main style="max-width:720px;margin:48px auto;padding:0 20px;font-family:Georgia,serif;color:#111;background:#f3f2ee">
+        <h1>Saim Ali — Full-Stack Web Developer</h1>
+        <p>Independent digital practice in Multan, Pakistan. I design and build product interfaces, React and Next.js websites, and motion-led experiences.</p>
+        <h2>Selected work</h2>
+        <ul>
+          <li><a href="https://bitlinksdev.vercel.app">BITLINKS</a> — URL shortening and real-time analytics.</li>
+          <li><a href="https://k72agency.vercel.app">K72 Platform</a> — Interactive agency platform.</li>
+          <li><a href="https://saimaliportfolio.vercel.app">Archive portfolio</a> — Earlier industrial UI system.</li>
+        </ul>
+        <p><a href="/about">About</a> · <a href="/portfolio">Portfolio</a> · <a href="/contact">Contact</a> · <a href="/privacy">Privacy</a> · <a href="/terms">Terms</a></p>
+        <p>Email: <a href="mailto:hello@saimalidev.com">hello@saimalidev.com</a></p>
+      </main>
+    </noscript>
+    <script>
+      (function () {
+        var count = document.getElementById("boot-count");
+        var bar = document.getElementById("boot-bar");
+        var start = performance.now();
+        var finished = false;
+        function tick(now) {
+          if (finished) return;
+          var p = Math.min(92, ((now - start) / 1600) * 92);
+          if (count) count.textContent = String(Math.floor(p)).padStart(2, "0");
+          if (bar) bar.style.transform = "scaleX(" + p / 100 + ")";
+          requestAnimationFrame(tick);
+        }
+        requestAnimationFrame(tick);
+        window.setTimeout(function () {
+          if (window.__finishBootLoader) window.__finishBootLoader();
+        }, 5000);
+        window.__finishBootLoader = function () {
+          if (finished) return;
+          finished = true;
+          if (count) count.textContent = "100";
+          if (bar) bar.style.transform = "scaleX(1)";
+          var loader = document.getElementById("site-loader");
+          if (!loader) return;
+          loader.classList.add("boot-loader--done");
+          window.setTimeout(function () {
+            if (loader.parentNode) loader.parentNode.removeChild(loader);
+          }, 800);
+        };
+      })();
+    </script>
     <script type="module" src="/src/main.tsx"></script>
-    <script defer src="%VITE_ANALYTICS_ENDPOINT%/umami" data-website-id="%VITE_ANALYTICS_WEBSITE_ID%"></script>
   </body>
 </html>
