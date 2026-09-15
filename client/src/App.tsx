@@ -5,9 +5,10 @@ import { Route, Switch, useLocation } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import { SITE_DESCRIPTION, SITE_TITLE, setPageMeta } from "./lib/site";
-
-const Home = lazy(() => import("./pages/Home"));
-const NotFound = lazy(() => import("./pages/NotFound"));
+// ── NEW: global haptics engine ────────────────────────────────
+import { initHaptics } from "./lib/haptics";
+import NotFound from "./pages/NotFound";
+import  Home from "./pages/Home";
 
 function Router() {
   const [location] = useLocation();
@@ -29,6 +30,9 @@ function Router() {
 }
 
 export default function App() {
+  // ── NEW: button-tap haptics + 5s-idle double haptic, site-wide ──
+  useEffect(() => initHaptics({ idleTimeoutMs: 5000 }), []);
+
   return (
     <ErrorBoundary>
       <ThemeProvider defaultTheme="light" switchable={false}>

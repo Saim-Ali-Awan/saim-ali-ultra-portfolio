@@ -17,6 +17,10 @@ import {
   useSpring,
   useTransform,
 } from "framer-motion";
+// ── NEW: GSAP for the bouncing code-drawn arrow ───────────────
+import gsap from "gsap";
+// ── NEW: haptics ──────────────────────────────────────────────
+import { haptic } from "../lib/haptics";
 import { Link } from "wouter";
 import { finishBootLoader, waitForFirstRender } from "../lib/bootLoader";
 import {
@@ -49,6 +53,97 @@ function Label({ children }: { children: React.ReactNode }) {
   return <span className="studio-label">{children}</span>;
 }
 
+/* ── NEW: pure-code down arrow, bounced with GSAP ─────────────── */
+function CodedDownArrow() {
+  const arrowRef = useRef<SVGSVGElement | null>(null);
+
+  useEffect(() => {
+    if (
+      !arrowRef.current ||
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    )
+      return;
+
+    const ctx = gsap.context(() => {
+      gsap.fromTo(
+        arrowRef.current,
+        { y: -2, opacity: 1 },
+        {
+          y: 6,
+          opacity: 0.35,
+          duration: 0.65,
+          ease: "power1.inOut",
+          repeat: -1,
+          yoyo: true,
+          repeatDelay: 0.1,
+        }
+      );
+    });
+    return () => ctx.revert();
+  }, []);
+
+  // Down arrow drawn entirely with code (inline SVG path — no icon lib)
+  return (
+    <svg
+      ref={arrowRef}
+      width="13"
+      height="18"
+      viewBox="0 0 14 20"
+      fill="none"
+      aria-hidden="true"
+    >
+      <path
+        d="M7 1.5v15M1.5 11.5 7 17l5.5-5.5"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+/* ── NEW: floating scroll-down tag (framer enter/exit + GSAP arrow) ── */
+function ScrollDownTag({ onClick }: { onClick: () => void }) {
+  return (
+    <motion.button
+      type="button"
+      onClick={onClick}
+      aria-label="Scroll to next section"
+      initial={{ opacity: 0, y: 26, x: "-50%", scale: 0.85 }}
+      animate={{ opacity: 1, y: 0, x: "-50%", scale: 1 }}
+      exit={{ opacity: 0, y: 26, x: "-50%", scale: 0.85 }}
+      transition={{ duration: 0.4, ease: [0.23, 1, 0.32, 1] }}
+      style={{
+        position: "fixed",
+        left: "50%",
+        bottom: "1.4rem",
+        zIndex: 80,
+        display: "inline-flex",
+        alignItems: "center",
+        gap: "0.55rem",
+        padding: "0.55rem 1.05rem",
+        fontSize: "0.62rem",
+        fontWeight: 700,
+        letterSpacing: "0.22em",
+        textTransform: "uppercase",
+        color: "#111111",
+        background: "rgba(255, 255, 255, 0.72)",
+        border: "1px solid rgba(0, 0, 0, 0.18)",
+        borderRadius: "999px",
+        backdropFilter: "blur(10px)",
+        WebkitBackdropFilter: "blur(10px)",
+        boxShadow: "0 12px 34px rgba(0, 0, 0, 0.16)",
+        cursor: "pointer",
+        pointerEvents: "auto",
+      }}
+    >
+      SCROLL
+      <CodedDownArrow />
+    </motion.button>
+  );
+}
+
 export default function Home() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [introReady, setIntroReady] = useState(false);
@@ -58,6 +153,10 @@ export default function Home() {
   const [hoveredProject, setHoveredProject] = useState<number | null>(null);
   const [formStatus, setFormStatus] = useState<FormStatus>("idle");
   const wasMenuOpen = useRef(false);
+
+  // ── NEW: scroll-down tag visibility state ─────────────────────
+  const [showScrollTag, setShowScrollTag] = useState(false);
+  const scrollHideTimer = useRef<number | null>(null);
 
   const profile = DEFAULT_PROFILE;
   const projects = useMemo(
@@ -152,9 +251,48 @@ export default function Home() {
     return () => panel?.removeEventListener("keydown", trapFocus);
   }, [menuOpen]);
 
+  // ── NEW: show tag while scrolling, hide with animation ~1.1s after stop ──
+  useEffect(() => {
+    const onScroll = () => {
+      const doc = document.documentElement;
+      const atBottom =
+        window.innerHeight + window.scrollY >= doc.scrollHeight - 60;
+
+      window.clearTimeout(scrollHideTimer.current!);
+
+      if (atBottom) {
+        setShowScrollTag(false); // nothing left to scroll → fade out
+        return;
+      }
+      setShowScrollTag(true); // scrolling → animate in
+      scrollHideTimer.current = window.setTimeout(
+        () => setShowScrollTag(false), // scroll stopped → animate out
+        1100
+      );
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      window.clearTimeout(scrollHideTimer.current!);
+    };
+  }, []);
+
   const scrollTo = (id: string) => {
     setMenuOpen(false);
     document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  // ── NEW: tag tap → jump to the next section ────────────────────
+  const scrollToNextSection = () => {
+    const sections = Array.from(
+      document.querySelectorAll<HTMLElement>("main section[id], main article[id]")
+    );
+    const target = sections.find(
+      (section) => section.getBoundingClientRect().top > window.innerHeight * 0.35
+    );
+    (target ?? sections[sections.length - 1])?.scrollIntoView({
+      behavior: "smooth",
+    });
   };
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -171,8 +309,10 @@ export default function Home() {
       if (!response.ok) throw new Error("Form failed");
       form.reset();
       setFormStatus("succeeded");
+      haptic("success"); // ── NEW: success haptic pattern
     } catch {
       setFormStatus("error");
+      haptic("error"); // ── NEW: error haptic pattern
     }
   };
 
@@ -577,8 +717,7 @@ export default function Home() {
           </p>
           <p>
             If you want to talk about a product, a rebuild, or a marketing site
-            that has to earn its keep, write through the form below or email{" "}
-            <a href={`mailto:${SITE_EMAIL}`}>{SITE_EMAIL}</a>.
+            that has to earn its keep, write through the form below. I respond to every message within 24 hours.
           </p>
         </article>
 
@@ -689,6 +828,7 @@ export default function Home() {
                 <input
                   data-cursor="WRITE"
                   required
+                  minLength={10}
                   type="email"
                   name="email"
                   autoComplete="email"
@@ -759,6 +899,11 @@ export default function Home() {
           </footer>
         </section>
       </div>
+
+      {/* ── NEW: floating scroll-down tag with animated code-drawn arrow ── */}
+      <AnimatePresence>
+        {showScrollTag && <ScrollDownTag key="scroll-down-tag" onClick={scrollToNextSection} />}
+      </AnimatePresence>
     </main>
   );
 }
